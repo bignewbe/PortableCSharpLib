@@ -14,7 +14,6 @@ namespace PortableCSharpLib
     public class General
     {
         //public static DateTime epochUTC = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        #region math
         public static T Min<T>(T a, T b, T c) where T : IComparable
         {
             if (a.CompareTo(b) < 0)
@@ -38,7 +37,7 @@ namespace PortableCSharpLib
             else
                 return a;
         }
-        public static bool withinRange<T>(T a, T min, T max) where T : IComparable
+        public static bool WithinRange<T>(T a, T min, T max) where T : IComparable
         {
             if (a.CompareTo(min) >= 0 && a.CompareTo(max) <= 0)
                 return true;
@@ -150,8 +149,51 @@ namespace PortableCSharpLib
 
             }
         }
-        #endregion
 
+        /// <summary>
+        /// function to convert list to string for the purpose display
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public static string ConvertListToString<T>(List<T> list)
+        {
+            var output = new StringBuilder();
+            output.Append("\n");
+            var typeCode = Type.GetTypeCode(typeof(T));
+            foreach (var item in list)
+            {
+                var str = string.Empty;
+                switch (typeCode)
+                {
+                    case TypeCode.Object:
+                        return null;
+                    case TypeCode.DateTime:
+                        str = string.Format("| {0,15} ", item.ToString());
+                        break;
+                    case TypeCode.String:
+                    case TypeCode.Boolean:
+                    case TypeCode.Int64:
+                    case TypeCode.Int32:
+                    case TypeCode.Int16:
+                    case TypeCode.Byte:
+                    case TypeCode.SByte:
+                        str = string.Format("| {0,15} ", item);
+                        break;
+                    case TypeCode.Decimal:
+                    case TypeCode.Double:
+                    case TypeCode.Single:
+                        str = string.Format("| {0,15:0.##} ", item);
+                        break;
+                    default:
+                        return null;
+                }
+                output.Append(string.Format(str));
+            }
+            output.Append("|\n");
+            return output.ToString();
+        }
+        
         /// <summary>
         /// prepend/append space to a string such that the string reach a fixed length
         /// </summary>
@@ -199,8 +241,7 @@ namespace PortableCSharpLib
 
             return -1;
         }
-
-
+        
         /// <summary>
         /// Serialize objec to xml string
         /// </summary>

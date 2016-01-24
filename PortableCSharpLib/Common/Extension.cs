@@ -263,7 +263,7 @@ namespace PortableCSharpLib
         /// <returns></returns>
         public static bool HasInterface(this Type type, string interfaceName)
         {
-            var ifs = type.GetInterfaces().ToList().First(f => f.Name.Contains(interfaceName));
+            var ifs = type.GetInterfaces().ToList().FirstOrDefault(f => f.Name.Contains(interfaceName));
             return ifs != null;
         }
         /// <summary>

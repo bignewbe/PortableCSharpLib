@@ -35,46 +35,23 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\Lib\Release\PortableCSharpLib.XML</DocumentationFile>
   </PropertyGroup>
-  <PropertyGroup>
-    <Major>1</Major>
-    <Minor>0</Minor>
-    <Build>0</Build>
-    <Revision>0</Revision>
-  </PropertyGroup>
-  <PropertyGroup>
-    <MSBuildCommunityTasksPath>E:\Code\build</MSBuildCommunityTasksPath>
-  </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extension.cs" />
-    <Compile Include="Constant.cs" />
-    <Compile Include="General.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Common\Extension.cs" />
+    <Compile Include="Common\Constant.cs" />
+    <Compile Include="Common\General.cs" />
+    <Compile Include="TechnicalAnalysis\Interfaces\IQuoteBasic.cs" />
+    <Compile Include="TechnicalAnalysis\Models\QuoteBasic.cs" />
   </ItemGroup>
-  <Target Name="Version">
-    <GitVersion LocalPath="$(MSBuildProjectDirectory)">
-        <Output TaskParameter="CommitHash" PropertyName="Revision" />
-    </GitVersion>
-    <AssemblyInfo
-        CodeLanguage="CS"
-        OutputFile="Properties\AssemblyInfo.cs"
-        AssemblyTitle="YourAssmblyName"
-        AssemblyDescription="Description"
-        AssemblyCompany=""
-        AssemblyProduct="Productname"
-        AssemblyCopyright="Copyright"
-        ComVisible="false"
-        CLSCompliant="true"
-        AssemblyInformationalVersion="$(Major).$(Minor).$(Build).$(Revision)"
-        AssemblyVersion="$(Major).$(Minor).$(Build)"
-        AssemblyFileVersion="$(Major).$(Minor).$(Build)" />
-  </Target>  
+  <Target Name="Display">
+    <Message Text="LocalPath = $(MSBuildProjectDirectory)" />
+    <Message Text="MSBuildCommunityTasksPath = $(MSBuildCommunityTasksPath)" />
+  </Target>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets"/>
-  
-  
+  <!-- <Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets"/> -->
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
