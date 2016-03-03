@@ -7,39 +7,39 @@ namespace PortableCSharpLib.TechnicalAnalysis
 {
     public class QuoteBasic : IQuoteBasic
     {
-        public int Count { get { return _time.Count; } }
-        public long FirstTime { get { return _time.FirstOrDefault(); } }
-        public long LastTime { get { return _time.LastOrDefault(); } }
+        public int Count { get { return Time.Count; } }
+        public long FirstTime { get { return Time.FirstOrDefault(); } }
+        public long LastTime { get { return Time.LastOrDefault(); } }
 
-        public string Symbol { get; set; }
-        public int Interval { get; set; }                //interval between two data point
-        public List<long> _time { get; set; }            //timestamp is expressed in unix _time
-        public List<double> _open { get; set; }
-        public List<double> _high { get; set; }
-        public List<double> _low { get; set; }
-        public List<double> _close { get; set; }
-        public List<double> _volume { get; set; }
+        public string Symbol { get; private set; }
+        public int Interval { get; private set; }                //interval between two data point
+        public List<long> Time { get; private set; }            //timestamp is expressed in unix _time
+        public List<double> Open { get; private set; }
+        public List<double> High { get; private set; }
+        public List<double> Low { get; private set; }
+        public List<double> Close { get; private set; }
+        public List<double> Volume { get; private set; }
 
         public QuoteBasic(string symbol, int interval)
         {
             Symbol = symbol;
             Interval = interval;
-            _time = new List<long>();
-            _open = new List<double>();
-            _close = new List<double>();
-            _high = new List<double>();
-            _low = new List<double>();
-            _volume = new List<double>();
+            Time = new List<long>();
+            Open = new List<double>();
+            Close = new List<double>();
+            High = new List<double>();
+            Low = new List<double>();
+            Volume = new List<double>();
         }
 
         public void Add(long t, double o, double h, double l, double c, double v, bool isTriggerDataAdded = false)
         {
-            _open.Add(o);
-            _high.Add(h);
-            _low.Add(l);
-            _close.Add(c);
-            _volume.Add(v);
-            _time.Add(t);
+            Open.Add(o);
+            High.Add(h);
+            Low.Add(l);
+            Close.Add(c);
+            Volume.Add(v);
+            Time.Add(t);
         }
     }
 }

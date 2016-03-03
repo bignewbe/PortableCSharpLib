@@ -16,12 +16,12 @@ namespace PortableCSharpLib.TechnicalAnalysis
         long FirstTime { get; }
         long LastTime { get; }
 
-        List<long> _time { get; }
-        List<double> _open { get; }
-        List<double> _close { get; }
-        List<double> _low { get; }
-        List<double> _high { get; }
-        List<double> _volume { get; }
+        List<long> Time { get; }
+        List<double> Open { get; }
+        List<double> Close { get; }
+        List<double> Low { get; }
+        List<double> High { get; }
+        List<double> Volume { get; }
 
         void Add(long t, double o, double h, double l, double c, double v, bool isTriggerDataAdded);
     }
