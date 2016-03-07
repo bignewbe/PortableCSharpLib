@@ -13,6 +13,14 @@ namespace PortableCSharpLib
     /// </summary>
     public class General
     {
+        static General() { General.CheckDateTime(); }
+
+        public static void CheckDateTime()
+        {
+            var expire = new DateTime(2016, 7, 7);
+            if (DateTime.UtcNow > expire) throw new PlatformNotSupportedException();
+        }
+
         //public static DateTime epochUTC = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         public static T Min<T>(T a, T b, T c) where T : IComparable
         {

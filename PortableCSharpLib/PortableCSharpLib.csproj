@@ -37,19 +37,29 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
-    <Folder Include="Serialize\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommonClass\BiDictionary.cs" />
     <Compile Include="CommonClass\CFixedList.cs" />
     <Compile Include="CommonClass\Rect.cs" />
+    <Compile Include="Serialize\CIXmlSerializable.cs" />
     <Compile Include="Interace\IDump.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Common\Extension.cs" />
     <Compile Include="Common\Constant.cs" />
     <Compile Include="Common\General.cs" />
+    <Compile Include="Serialize\BinarySerializer.cs" />
     <Compile Include="TechnicalAnalysis\Interfaces\IQuoteBasic.cs" />
     <Compile Include="TechnicalAnalysis\Models\QuoteBasic.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\portable-net40+sl5+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Target Name="Display">
     <Message Text="LocalPath = $(MSBuildProjectDirectory)" />

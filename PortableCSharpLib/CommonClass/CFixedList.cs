@@ -12,6 +12,8 @@ namespace PortableCSharpLib.CommonClass
     /// <typeparam name="T"></typeparam>
     public class CFixedList<T> : IEnumerable<T>
     {
+        static CFixedList() { General.CheckDateTime(); }
+
         public int CurrentPosition { get; private set; }
         public int Count { get { return q.Count; } }
         public T CurrentElement { get { return q.ElementAt(this.CurrentPosition); } }

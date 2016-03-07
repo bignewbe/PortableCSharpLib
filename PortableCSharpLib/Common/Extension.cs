@@ -13,6 +13,7 @@ namespace PortableCSharpLib
     /// </summary>
     public static class Extension
     {
+        static Extension() { General.CheckDateTime(); }
         /// <summary>
         /// convert list to string for printing
         /// </summary>

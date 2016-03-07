@@ -54,6 +54,7 @@
     <Compile Include="TestExtension.cs" />
     <Compile Include="TestGeneral.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestSerialize.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PortableCSharpLib\PortableCSharpLib.csproj">

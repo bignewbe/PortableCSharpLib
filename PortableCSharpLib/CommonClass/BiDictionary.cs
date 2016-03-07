@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace PortableCSharpLib.CommonClass
 {
@@ -12,6 +9,8 @@ namespace PortableCSharpLib.CommonClass
     /// <typeparam name="TSecond"></typeparam>
     public class BiDictionary<TFirst, TSecond>
     {
+        static BiDictionary() { General.CheckDateTime(); }
+
         IDictionary<TFirst, TSecond> firstToSecond = new Dictionary<TFirst, TSecond>();
         IDictionary<TSecond, TFirst> secondToFirst = new Dictionary<TSecond, TFirst>();
 
