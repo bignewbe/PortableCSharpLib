@@ -11,6 +11,8 @@ namespace TestPortable
         [TestMethod]
         public void TestBinarySearch()
         {
+            Console.WriteLine(DateTime.UtcNow.GetIso8601WeekOfYear()); 
+
             //good weather
             var list = new List<int> { 1, 3, 6, 9, 10 };
             Assert.AreEqual(General.BinarySearch(list, 0, list.Count - 1, 6, false), 2);
