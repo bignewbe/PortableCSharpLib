@@ -49,11 +49,6 @@
     <Compile Include="Common\Constant.cs" />
     <Compile Include="Common\General.cs" />
     <Compile Include="Serialize\BinarySerializer.cs" />
-    <Compile Include="TechnicalAnalysis\EventHandlers.cs" />
-    <Compile Include="TechnicalAnalysis\Interfaces\IQuoteCapture.cs" />
-    <Compile Include="TechnicalAnalysis\Interfaces\IQuoteBasic.cs" />
-    <Compile Include="TechnicalAnalysis\Models\QuoteCapture.cs" />
-    <Compile Include="TechnicalAnalysis\Models\QuoteBasic.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
