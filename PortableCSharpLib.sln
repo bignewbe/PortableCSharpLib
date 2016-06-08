@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortableCSharpLib", "PortableCSharpLib\PortableCSharpLib.csproj", "{DB3041C8-50A3-47EA-AF7F-82096C82CF20}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest", "UnitTest\UnitTest.csproj", "{03EE4578-D3B1-4AAC-9AB6-FAAD4AA6E3CC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortableCSharpLibUnitTest", "PortableCSharpLibUnitTest\PortableCSharpLibUnitTest.csproj", "{03EE4578-D3B1-4AAC-9AB6-FAAD4AA6E3CC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -51,6 +51,8 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="QuoteBasicTests.cs" />
+    <Compile Include="QuoteCaptureTests.cs" />
     <Compile Include="TestExtension.cs" />
     <Compile Include="TestGeneral.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

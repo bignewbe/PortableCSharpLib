@@ -10,7 +10,6 @@ namespace PortableCSharpLib.TechnicalAnalysis
     [DataContract]
     public class QuoteBasic : IQuoteBasic
     {
-        static QuoteBasic() { PortableCSharpLib.General.CheckDateTime(); }
         public int Count { get { return Time.Count; } }
         public long FirstTime { get { return Time.FirstOrDefault(); } }
         public long LastTime { get { return Time.LastOrDefault(); } }
@@ -85,7 +84,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
                 }
             }
         }
-        public int Append(IQuoteBasic q, int interval = -1)
+        public int Append(IQuoteBasic q, int interval = -1, bool isFillGap = false)
         {
             var numAddedElement = 0;
 
@@ -110,8 +109,11 @@ namespace PortableCSharpLib.TechnicalAnalysis
                 (q.LastTime % interval == 0))                                               //at least one element at interval to add (last element only)
             {
                 //remove last element if it is not multiplier of this.Interval. it will be executed only when we are adding sub-interval data
-                var bRemoveLastElement = (this.Count > 0 && this.Interval != interval &&
-                    this.LastTime % this.Interval != 0 && q.Time[indexStartSearch] <= this.LastTime && q.LastTime > this.LastTime);
+                var bRemoveLastElement = (this.Count > 0 &&
+                    this.Interval != interval &&
+                    this.LastTime % this.Interval != 0 &&                                           // 表示最后一个item是不完整的
+                    (q.Time[indexStartSearch] / this.Interval != this.LastTime / this.Interval ||   // 表示会添加一个完整的item，因此移除之前不完整的item
+                    q.LastTime > this.LastTime));                                                   // 表示存在最新的item（不完整的）
 
                 if (bRemoveLastElement) {
                     Time.RemoveAt(Time.Count - 1);
@@ -140,13 +142,13 @@ namespace PortableCSharpLib.TechnicalAnalysis
                         var high = q.High.GetRange(sindex, len).Max();
                         var low = q.Low.GetRange(sindex, len).Min();
 
-                        ////repeat quote to fill gap
-                        //if (this.Count > 0) {
-                        //    var c = this._close.LastOrDefault();
-                        //    var v = this._volume.LastOrDefault();
-                        //    while (time > this.LastTime + this.Interval)
-                        //        this.Add(this.LastTime + this.Interval, c, c, c, c, v);
-                        //}
+                        //repeat quote to fill gap
+                        if (isFillGap && this.Count > 0) {
+                            var c = this.Close.LastOrDefault();
+                            var v = this.Volume.LastOrDefault();
+                            while (time > this.LastTime + this.Interval)
+                                this.Add(this.LastTime + this.Interval, c, c, c, c, v);
+                        }
 
                         this.Add(time, open, high, low, close, volume);       //add new element
                         ++numAddedElement;
@@ -180,7 +182,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
 
             return numAddedElement;
         }
-        public int Append(IQuoteCapture q, int interval = -1)
+        public int Append(IQuoteCapture q, int interval = -1, bool isFillGap = false)
         {
             var numAddedElement = 0;
 
@@ -193,7 +195,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
             //search backward for the quotes. the found time should be >= lastTime
             int indexStartSearch = -1;
             for (int i = q.Count - 1; i >= 0; i--) {
-                if (q.Time[i] < lastTime)               //for basic quote we include price at previous interval for calculation
+                if (q.Time[i] <= lastTime)               //for basic quote we include price at previous interval for calculation
                     break;
 
                 indexStartSearch = i;
@@ -204,7 +206,12 @@ namespace PortableCSharpLib.TechnicalAnalysis
                 (q.LastTime % interval == 0))                                               //at boundary 
             {
                 //remove last element if it is not multiplier of this.Interval. it will be executed only when we are adding sub-interval data
-                var bRemoveLastElement = (this.Count > 0 && this.Interval != interval && this.LastTime % this.Interval != 0 && q.Time[indexStartSearch] <= this.LastTime && q.LastTime > this.LastTime);
+                var bRemoveLastElement = (this.Count > 0 &&
+                    this.Interval != interval &&
+                    this.LastTime % this.Interval != 0 &&
+                     (q.Time[indexStartSearch] / this.Interval != this.LastTime / this.Interval ||
+                    q.LastTime > this.LastTime));
+
                 if (bRemoveLastElement) {
                     Time.RemoveAt(Time.Count - 1);
                     Open.RemoveAt(Open.Count - 1);
@@ -216,13 +223,12 @@ namespace PortableCSharpLib.TechnicalAnalysis
 
                 //////////////////////////////////////////////////////
                 int sindex = indexStartSearch;
-                int len = 1;
-                for (int i = indexStartSearch + 1; i <= q.Count - 1; i++)                         //we have to start from indexStartSearch + 1 since sindex may at this.Interval
-                {
+                int len = 0;
+                for (int i = indexStartSearch; i <= q.Count - 1; i++) {
                     ++len;
-                    if ((q.Time[i] % this.Interval == 0) ||                                       //new element started 
-                        (i > 0 && q.Time[i] / this.Interval != q.Time[i - 1] / this.Interval))    //jump over bounary                  
-                    {
+                    //if ((q.Time[i] % this.Interval == 0) ||                                       //new element started 
+                    //    (i > 0 && q.Time[i] / this.Interval != q.Time[i - 1] / this.Interval))    //jump over bounary                  
+                    if (q.Time[i] / this.Interval != this.LastTime / this.Interval) {
                         var eindex = sindex + len - 1;
                         var price = q.Price.GetRange(sindex, len);
                         var time = q.Time[i] / this.Interval * this.Interval;
@@ -232,7 +238,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
                         var low = price.Min();
 
                         //repeat quote to fill gap
-                        if (this.Count > 0) {
+                        if (isFillGap && this.Count > 0) {
                             while (time > this.LastTime + this.Interval) {
                                 this.Add(this.LastTime + this.Interval,
                                          this.Open.LastOrDefault(), this.High.LastOrDefault(),
@@ -267,7 +273,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
 
             return numAddedElement;
         }
-        
+
         //return index whose timestamp >= time
         public int FindIndexForGivenTime(long time, bool isReturnJustSmallerElement = false)
         {
@@ -349,7 +355,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
             var eindex = this.FindIndexForGivenTime(q.LastTime, true);
             if (sindex == -1 || eindex == -1) return false;
 
-            if (this.Time[eindex] != q.LastTime)          
+            if (this.Time[eindex] != q.LastTime)
                 eindex += 1;                              //points to elment just larger than last time
 
             //we know Time[sindex] <= q.FirstTime and Time[eindex] >= q.LastTime => we can merge the two sequences

@@ -63,7 +63,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
             this.Time = new List<long>(time);
             this.Price = new List<double>(price);
         }
-        
+
         public void Assign(IQuoteCapture q)
         {
             this.Create(q);
@@ -80,7 +80,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
         }
         public virtual void Append(IQuoteCapture q)
         {
-            if (q == null || q.Count <=0 || this.Symbol != q.Symbol)
+            if (q == null || q.Count <= 0 || this.Symbol != q.Symbol)
                 return;
 
             var sindex = q.Count - 1;
@@ -98,9 +98,24 @@ namespace PortableCSharpLib.TechnicalAnalysis
         }
         public virtual IQuoteCapture Extract(long stime, long etime)
         {
-            var sindex = Time.FirstOrDefault(t => t >= stime);
-            var eindex = Time.LastOrDefault(t => t <= etime);
-            return Extract(sindex, eindex);
+            int sIndex = General.BinarySearch(Time, 0, Time.Count - 1, stime, true);
+
+            if (sIndex < 0) {
+                sIndex++;
+                if (Time.Count == 0 || Time[sIndex] < stime) {
+                    return null;
+                }
+            }
+            else if (Time[sIndex] != stime) {
+                sIndex++;
+                if (sIndex >= Time.Count - 1) {
+                    return null;
+                }
+            }
+
+            int eIndex = General.BinarySearch(Time, 0, Time.Count - 1, etime, true);
+
+            return Extract(sIndex, eIndex);
         }
         public virtual IQuoteCapture Extract(int sindex, int eindex)
         {
