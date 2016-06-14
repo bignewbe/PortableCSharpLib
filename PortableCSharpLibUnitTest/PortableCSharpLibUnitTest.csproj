@@ -53,10 +53,9 @@
   <ItemGroup>
     <Compile Include="QuoteBasicTests.cs" />
     <Compile Include="QuoteCaptureTests.cs" />
-    <Compile Include="TestExtension.cs" />
-    <Compile Include="TestGeneral.cs" />
+    <Compile Include="ExtensionTests.cs" />
+    <Compile Include="GeneralTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestSerialize.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PortableCSharpLib\PortableCSharpLib.csproj">
