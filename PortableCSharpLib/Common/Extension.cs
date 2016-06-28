@@ -151,10 +151,12 @@ namespace PortableCSharpLib
 
             // Return the week of our adjusted day
             var weekNo = CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(time, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+
             //var year = time.Year;
             //var result = (year - 2000) * 100 + weekNo
             return weekNo;
         }
+
         /// <summary>
         /// get year of given date
         /// </summary>

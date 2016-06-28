@@ -63,7 +63,6 @@ namespace PortableCSharpLib.TechnicalAnalysis
             this.Time = new List<long>(time);
             this.Price = new List<double>(price);
         }
-
         public void Assign(IQuoteCapture q)
         {
             this.Create(q);
