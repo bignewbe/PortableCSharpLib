@@ -17,7 +17,7 @@ namespace PortableCSharpLib
 
         public static void CheckDateTime()
         {
-            var expire = new DateTime(2016, 9, 7);
+            var expire = new DateTime(2026, 9, 7);
             if (DateTime.UtcNow > expire) throw new PlatformNotSupportedException();
         }
 
