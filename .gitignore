@@ -1,0 +1,11 @@
+*.csproj.user
+*.orig
+bin/
+obj/
+lib/
+/packages
+/Test
+/TestResults
+.vs
+logs/
+*.bak
