@@ -68,6 +68,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
         }
 
         public event EventHandlers.QuoteBasicDataAddedEventHandler QuoteBasicDataAdded;
+        public event EventHandlers.QuoteBasicDataAppendedEventHandler OnQuoteBasicDataAppended;
 
         public void Add(long t, double o, double h, double l, double c, double v, bool isTriggerDataAdded = false)
         {
@@ -180,8 +181,12 @@ namespace PortableCSharpLib.TechnicalAnalysis
                 }
             }
 
+            if (numAddedElement > 0)
+                OnQuoteBasicDataAppended?.Invoke(this, this, numAddedElement);
+
             return numAddedElement;
         }
+
         public int Append(IQuoteCapture q, int interval = -1, bool isFillGap = false)
         {
             var numAddedElement = 0;
@@ -270,6 +275,9 @@ namespace PortableCSharpLib.TechnicalAnalysis
                     ++numAddedElement;
                 }
             }
+
+            if (numAddedElement > 0)
+                OnQuoteBasicDataAppended?.Invoke(this, this, numAddedElement);
 
             return numAddedElement;
         }

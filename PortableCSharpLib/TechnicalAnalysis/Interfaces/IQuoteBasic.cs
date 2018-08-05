@@ -71,6 +71,10 @@ namespace PortableCSharpLib.TechnicalAnalysis
         event EventHandlers.QuoteBasicDataAddedEventHandler QuoteBasicDataAdded;
 
         /// <summary>
+        /// event raised when Append is called and new element is appended
+        /// </summary>
+        event EventHandlers.QuoteBasicDataAppendedEventHandler OnQuoteBasicDataAppended;
+        /// <summary>
         /// Find index for the given time. If isReturnJustSmallerElement == false, -1 will be returned if time is not found. 
         /// Otherwise, index of just smaller element will be returned. 
         /// </summary>

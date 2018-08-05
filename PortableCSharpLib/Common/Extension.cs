@@ -269,6 +269,7 @@ namespace PortableCSharpLib
         /// <returns></returns>
         public static bool IsNumericType(this Type type)
         {
+            if (type.IsEnum) return false;
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Byte:
@@ -286,6 +287,15 @@ namespace PortableCSharpLib
                 default:
                     return false;
             }
+        }
+        /// <summary>
+        /// check if given type is a boolean
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool IsBoolean(this Type type)
+        {
+            return Type.GetTypeCode(type) == TypeCode.Boolean;
         }
         /// <summary>
         /// check if type is nullable
