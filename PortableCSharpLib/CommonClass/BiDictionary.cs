@@ -62,5 +62,33 @@ namespace PortableCSharpLib.CommonClass
         {
             return secondToFirst.TryGetValue(second, out first);
         }
+
+        public bool ContainsKey(TFirst first)
+        {
+            return firstToSecond.ContainsKey(first);
+        }
+
+        public bool ContainsKey(TSecond second)
+        {
+            return secondToFirst.ContainsKey(second);
+        }
+
+        public void Remove(TFirst first)
+        {
+            if (firstToSecond.ContainsKey(first))
+            {
+                secondToFirst.Remove(firstToSecond[first]);
+                firstToSecond.Remove(first);
+            }
+        }
+
+        public void Remove(TSecond second)
+        {
+            if (secondToFirst.ContainsKey(second))
+            {
+                firstToSecond.Remove(secondToFirst[second]);
+                secondToFirst.Remove(second);
+            }
+        }
     }
 }
