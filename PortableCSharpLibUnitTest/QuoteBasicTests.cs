@@ -331,7 +331,7 @@ namespace UnitTest
             AssertNoException(() => _quoteBasic.Add(100, 1, 1, 1, 1, 1), null);
         }
 
-        private void TestAddEventInternal(object sender, string symbol, long time, double open, double close, double high, double low, double volume)
+        private void TestAddEventInternal(object sender, string symbol, int interval, long time, double open, double close, double high, double low, double volume)
         {
             throw new Exception();
         }

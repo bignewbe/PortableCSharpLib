@@ -29,16 +29,17 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Lib\Release\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Lib\Release\PortableCSharpLib.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\PortableCSharpLib.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CommonClass\BiDictionary.cs" />
     <Compile Include="CommonClass\CFixedList.cs" />
     <Compile Include="CommonClass\Rect.cs" />
+    <Compile Include="Exceptions.cs" />
     <Compile Include="Interace\IDump.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Common\Extension.cs" />
