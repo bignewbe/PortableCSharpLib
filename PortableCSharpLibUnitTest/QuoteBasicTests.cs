@@ -331,7 +331,7 @@ namespace UnitTest
             AssertNoException(() => _quoteBasic.Add(100, 1, 1, 1, 1, 1), null);
         }
 
-        private void TestAddEventInternal(object sender, string symbol, long time, double open, double close, double high, double low, double volume)
+        private void TestAddEventInternal(object sender, string symbol, int interval, long time, double open, double close, double high, double low, double volume)
         {
             throw new Exception();
         }
@@ -410,9 +410,14 @@ namespace UnitTest
             _quoteBasic.Add(500, 1, 1, 1, 1, 1, false);
 
             qb1 = _quoteBasic.Extract(250L, 350L);
+            Assert.AreEqual(1, qb1.Count);
+            Assert.AreEqual(300, qb1.Time[0]);
+
+            qb1 = _quoteBasic.Extract(250L, 400L);
             Assert.AreEqual(2, qb1.Count);
             Assert.AreEqual(300, qb1.Time[0]);
             Assert.AreEqual(400, qb1.Time[1]);
+
 
             qb1 = _quoteBasic.Extract(350L, 250L);
             Assert.IsNull(qb1);
@@ -424,8 +429,10 @@ namespace UnitTest
         [TestMethod]
         public void TestExtract_IntInt()
         {
-            IQuoteBasic qb1 = _quoteBasic.Extract(0, 0);
-            Assert.IsNull(qb1);
+            AssertException(() => _quoteBasic.Extract(0, 0));
+
+            //IQuoteBasic qb1 = _quoteBasic.Extract(0, 0);
+            //Assert.IsNull(qb1);
 
             _quoteBasic.Add(100, 1, 1, 1, 1, 1, false);
             _quoteBasic.Add(200, 1, 1, 1, 1, 1, false);
@@ -433,14 +440,11 @@ namespace UnitTest
             _quoteBasic.Add(400, 1, 1, 1, 1, 1, false);
             _quoteBasic.Add(500, 1, 1, 1, 1, 1, false);
 
-            qb1 = _quoteBasic.Extract(1, 3);
+            var qb1 = _quoteBasic.Extract(1, 3);
             Assert.AreEqual(3, qb1.Count);
 
-            qb1 = _quoteBasic.Extract(3, 1);
-            Assert.IsNull(qb1);
-
-            qb1 = _quoteBasic.Extract(5, 7);
-            Assert.IsNull(qb1);
+            AssertException(()=> _quoteBasic.Extract(3, 1));
+            AssertException(() => _quoteBasic.Extract(5, 7));
         }
 
 
