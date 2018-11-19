@@ -86,6 +86,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
         }
 
         public event EventHandlers.QuoteBasicDataAddedEventHandler QuoteBasicDataAdded;
+        public event EventHandlers.QuoteBasicDataAppendedEventHandler OnQuoteBasicDataAppended;
         public event Action<IQuoteBasic, int> DataChanged;
 
         public void Add(long t, double o, double h, double l, double c, double v, bool isTriggerDataAdded = false)
@@ -235,9 +236,11 @@ namespace PortableCSharpLib.TechnicalAnalysis
 
             if (isTriggerDataUpdated && (isDataChanged || numAddedElement > 0))
             {
-                var tmp = DataChanged;
-                tmp?.Invoke(this, numAddedElement);
+                DataChanged?.Invoke(this, numAddedElement);
             }
+
+            if (numAddedElement > 0)
+                OnQuoteBasicDataAppended?.Invoke(this, this, numAddedElement);
 
             return numAddedElement;
         }
@@ -382,6 +385,9 @@ namespace PortableCSharpLib.TechnicalAnalysis
                 OnDataUpdated(numAddedElement);
             }
 
+            if (numAddedElement > 0)
+                OnQuoteBasicDataAppended?.Invoke(this, this, numAddedElement);
+
             return numAddedElement;
         }
 
@@ -440,7 +446,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
                 return index;
 
             if (index < this.Count - 1 &&
-                Time[index + 1] == (time / this.Interval + 1) * this.Interval)    //if give time is not in the list, BinarySearch returns the index of the element which is just smaller than given time                                           
+                Time[index + 1] >= (time / this.Interval + 1) * this.Interval)    //if give time is not in the list, BinarySearch returns the index of the element which is just smaller than given time                                           
                 ++index;                                                          //in this case, we should increment index
             else
                 index = -1;
@@ -451,9 +457,9 @@ namespace PortableCSharpLib.TechnicalAnalysis
 
         public IQuoteBasic Extract(long stime, long etime)
         {
-            var q = new QuoteBasic(this.Symbol, this.Interval);
+            //var q = new QuoteBasic(this.Symbol, this.Interval);
             if (this.Count == 0 || stime > etime || stime > this.LastTime || etime < this.FirstTime)
-                return q;
+                return null;
             int sindex = 0, eindex = this.Count - 1;            //by default we extrace whole data
 
             if (stime > this.FirstTime)
@@ -464,13 +470,13 @@ namespace PortableCSharpLib.TechnicalAnalysis
             }
 
             if (sindex >= this.Count)
-                return q;
+                return null;
 
             if (etime < this.LastTime)
                 eindex = this.FindIndexForGivenTime(etime, true); // <= etime
 
             if (sindex > eindex)
-                return q;
+                return null;
 
             return Extract(sindex, eindex);
         }
