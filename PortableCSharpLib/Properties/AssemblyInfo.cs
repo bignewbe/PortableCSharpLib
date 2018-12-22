@@ -14,6 +14,8 @@
 [assembly: System.Reflection.AssemblyInformationalVersion("1.0.a7cd3a9")]
 [assembly: System.Reflection.AssemblyProduct("ProductName")]
 [assembly: System.Reflection.AssemblyTitle("PortableCSharpLib")]
-[assembly: System.Reflection.AssemblyVersion("1.0.*")]
+[assembly: System.Reflection.AssemblyVersion("1.0.2")]
+[assembly: System.Reflection.AssemblyFileVersion("1.0.2nuge")]
+
 
 

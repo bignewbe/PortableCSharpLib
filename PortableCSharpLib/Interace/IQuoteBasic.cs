@@ -102,6 +102,8 @@ namespace PortableCSharpLib.TechnicalAnalysis
         /// </summary>
         event EventHandlers.QuoteBasicDataAddedEventHandler QuoteBasicDataAdded;
 
+        event EventHandlers.QuoteBasicDataAppendedEventHandler OnQuoteBasicDataAppended;
+
         /// <summary>
         /// 数据改变时触发的事件。Append触发。
         /// int表示改变的数量，如果int = 0，表示更新了数据，数量没变。
