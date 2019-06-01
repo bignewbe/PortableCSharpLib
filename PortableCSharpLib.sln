@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortableCSharpLib", "PortableCSharpLib\PortableCSharpLib.csproj", "{DB3041C8-50A3-47EA-AF7F-82096C82CF20}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PortableCSharpLib", "PortableCSharpLib\PortableCSharpLib.csproj", "{DB3041C8-50A3-47EA-AF7F-82096C82CF20}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortableCSharpLibUnitTest", "PortableCSharpLibUnitTest\PortableCSharpLibUnitTest.csproj", "{03EE4578-D3B1-4AAC-9AB6-FAAD4AA6E3CC}"
 EndProject
@@ -54,5 +54,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C64C7157-D058-4FFD-A0DE-2196D80D4DF9}
 	EndGlobalSection
 EndGlobal

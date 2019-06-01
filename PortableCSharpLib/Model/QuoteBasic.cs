@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using PortableCSharpLib.DataType;
+using PortableCSharpLib.Interace;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -69,11 +71,25 @@ namespace PortableCSharpLib.TechnicalAnalysis
             this.Volume = new List<double>(Volume);
         }
 
+        public QuoteBasic(List<OHLC> ohlc)
+        {
+            if (ohlc == null || ohlc.Count == 0) return;
+            var b = ohlc[0];
+            this.Symbol = b.Symbol;
+            this.Interval = b.Interval;
+            this.Time = ohlc.Select(o => o.Time).ToList();
+            this.Open = ohlc.Select(o => o.Open).ToList();
+            this.Close = ohlc.Select(o => o.Close).ToList();
+            this.High = ohlc.Select(o => o.High).ToList();
+            this.Low = ohlc.Select(o => o.Low).ToList();
+            this.Volume = ohlc.Select(o => o.Volume).ToList();
+        }
+        
         /// <summary>
-        /// 复制IQuoteBasic的内容
+        /// 复制IQuoteBasicBase的内容
         /// </summary>
         /// <param name="q"></param>
-        public QuoteBasic(IQuoteBasic q)
+        public QuoteBasic(IQuoteBasicBase q)
         {
             Symbol = q.Symbol;
             Interval = q.Interval;
@@ -85,9 +101,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
             Volume = new List<double>(q.Volume);
         }
 
-        public event EventHandlers.QuoteBasicDataAddedEventHandler QuoteBasicDataAdded;
-        public event EventHandlers.QuoteBasicDataAppendedEventHandler OnQuoteBasicDataAppended;
-        public event Action<IQuoteBasic, int> DataChanged;
+        public event EventHandlers.DataAddedOrUpdatedEventHandler OnDataAddedOrUpdated;
 
         public void Add(long t, double o, double h, double l, double c, double v, bool isTriggerDataAdded = false)
         {
@@ -101,10 +115,36 @@ namespace PortableCSharpLib.TechnicalAnalysis
                 Time.Add(t);
                 if (isTriggerDataAdded)
                 {
-                    var tmp = QuoteBasicDataAdded;
-                    tmp?.Invoke(this, Symbol, Interval, t, o, c, h, l, v);
+                    OnDataAddedOrUpdated?.Invoke(this, this, 1);
+                    //QuoteBasicDataAdded?.Invoke(this, Symbol, Interval, t, o, c, h, l, v);
                 }
             }
+        }
+
+        public int AddUpdate(long t, double o, double h, double l, double c, double v, bool isTriggerDataAdded = false)
+        {            
+            if (this.Count == 0 || t > this.LastTime)
+            {
+                Open.Add(o);
+                High.Add(h);
+                Low.Add(l);
+                Close.Add(c);
+                Volume.Add(v);
+                Time.Add(t);
+                if (isTriggerDataAdded) OnDataAddedOrUpdated?.Invoke(this, this, 1);
+                return 1;
+            }
+            else if (t == this.LastTime)
+            {
+                Open[this.Count - 1] = o;
+                High[this.Count - 1] = h;
+                Low[this.Count - 1] = l;
+                Close[this.Count - 1] = c;
+                Volume[this.Count - 1] = v;
+                if (isTriggerDataAdded) OnDataAddedOrUpdated?.Invoke(this, this, 0);
+                return 0;
+            }
+            return 0;
         }
 
         public void UpdateLast(long t, double o, double h, double l, double c, double v)
@@ -119,7 +159,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
             //Time.Add(t);
         }
 
-        public int Append(IQuoteBasic q, int interval = -1, bool isFillGap = false, bool isTriggerDataUpdated = false)
+        public int Append(IQuoteBasicBase q, int interval = -1, bool isFillGap = false, bool isTriggerDataUpdated = false)
         {
             var numAddedElement = 0;
 
@@ -236,16 +276,16 @@ namespace PortableCSharpLib.TechnicalAnalysis
 
             if (isTriggerDataUpdated && (isDataChanged || numAddedElement > 0))
             {
-                DataChanged?.Invoke(this, numAddedElement);
+                OnDataAddedOrUpdated?.Invoke(this, this, numAddedElement);
             }
 
-            if (numAddedElement > 0)
-                OnQuoteBasicDataAppended?.Invoke(this, this, numAddedElement);
+            //if (numAddedElement > 0)
+            //    OnQuoteBasicDataAppended?.Invoke(this, this, numAddedElement);
 
             return numAddedElement;
         }
 
-        private void AddItemByQuoteBasic(IQuoteBasic q, bool isFillGap, int sindex, int eindex, long endTime, ref int numAddedElement)
+        private void AddItemByQuoteBasic(IQuoteBasicBase q, bool isFillGap, int sindex, int eindex, long endTime, ref int numAddedElement)
         {
             var len = eindex - sindex + 1;
             var open = q.Open[sindex];
@@ -289,7 +329,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
 
             bool isDataChanged = false;
             // now 一定有数据被添加
-            #region 被Append的QuoteBasic最后一个不完整数据
+            #region 被Append的QuoteBasicBase最后一个不完整数据
             if (this.LastTime % this.Interval != 0) // 最后一个为不完整数据
             {
                 while (qc.Time[indexStartSearch] <= this.LastTime)
@@ -335,8 +375,9 @@ namespace PortableCSharpLib.TechnicalAnalysis
 
             if (indexStartSearch >= qc.Count)
             {
-                if (isDataChanged)
-                    OnDataUpdated(numAddedElement);
+                if (isDataChanged || numAddedElement > 0)
+                    OnDataAddedOrUpdated?.Invoke(this, this, numAddedElement);
+
                 return numAddedElement;
             }
 
@@ -361,6 +402,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
             }
             else
                 FillGap(isFillGap, endTime, ref numAddedElement);
+
             // add last element even if they are not multiple of this.Interval but multiples of interval
             //note that sindex is always at the element for new group
             if (sindex <= qc.Count - 1 && this.Interval != interval && qc.LastTime % interval == 0)
@@ -382,20 +424,20 @@ namespace PortableCSharpLib.TechnicalAnalysis
 
             if (isTriggerDataUpdated && (isDataChanged || numAddedElement > 0))
             {
-                OnDataUpdated(numAddedElement);
+                OnDataAddedOrUpdated?.Invoke(this, this, numAddedElement);
             }
 
-            if (numAddedElement > 0)
-                OnQuoteBasicDataAppended?.Invoke(this, this, numAddedElement);
+            //if (numAddedElement > 0)
+            //    OnQuoteBasicDataAppended?.Invoke(this, this, numAddedElement);
 
             return numAddedElement;
         }
 
-        private void OnDataUpdated(int numAddedElement)
-        {
-            var tmp = DataChanged;
-            tmp?.Invoke(this, numAddedElement);
-        }
+        //private void OnDataUpdated(int numAddedElement)
+        //{
+        //    var tmp = DataChanged;
+        //    tmp?.Invoke(this, numAddedElement);
+        //}
 
         private void AddItemByQuoteCapture(IQuoteCapture q, bool isFillGap, int sindex, int eindex, long endTime, ref int numAddedElement)
         {
@@ -434,7 +476,6 @@ namespace PortableCSharpLib.TechnicalAnalysis
             if (this.Count <= 0) return -1;
             return General.BinarySearch(Time, 0, Time.Count - 1, time, isReturnJustSmallerElement);
         }
-
         public int FindIndexWhereTimeLocated(long time)
         {
             if (this.Count <= 0)
@@ -454,33 +495,19 @@ namespace PortableCSharpLib.TechnicalAnalysis
             return index;
         }
 
-
-        public IQuoteBasic Extract(long stime, long etime)
+        public QuoteBasic Extract(long stime, long etime)
         {
-            //var q = new QuoteBasic(this.Symbol, this.Interval);
+            //var q = new QuoteBasicBase(this.Symbol, this.Interval);
             if (this.Count == 0 || stime > etime || stime > this.LastTime || etime < this.FirstTime)
                 return null;
-            int sindex = 0, eindex = this.Count - 1;            //by default we extrace whole data
+            
+            var sindex = stime <= this.FirstTime? 0 : this.FindIndexForGivenTime(stime, true);
+            var eindex = etime >= this.LastTime? this.Count - 1 : this.FindIndexForGivenTime(etime, true);
 
-            if (stime > this.FirstTime)
-            {
-                sindex = this.FindIndexForGivenTime(stime, true);
-                if (this.Time[sindex] != stime)
-                    ++sindex;
-            }
-
-            if (sindex >= this.Count)
-                return null;
-
-            if (etime < this.LastTime)
-                eindex = this.FindIndexForGivenTime(etime, true); // <= etime
-
-            if (sindex > eindex)
-                return null;
-
-            return Extract(sindex, eindex);
+            return this.Extract(sindex, eindex);
         }
-        public IQuoteBasic Extract(int sindex, int eindex)
+
+        public QuoteBasic Extract(int sindex, int eindex)
         {
             if (sindex < 0 || eindex > this.Count - 1 || eindex < sindex)
                 throw new ArgumentException(string.Format("Function {0} sindex: {1}, eindex: {2}, Count: {3}",
@@ -498,7 +525,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
         }
 
         //insert missing quote
-        public bool Insert(IQuoteBasic q)
+        public bool Insert(IQuoteBasicBase q)
         {
             if (q == null || q.Count <= 0) return false;
             if (this.Symbol != q.Symbol || this.Interval != q.Interval) return false;
@@ -702,7 +729,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
         }
 
         /// <summary>
-        /// 从stream中读取数据，并实例化QuoteBasic
+        /// 从stream中读取数据，并实例化QuoteBasicBase
         /// </summary>
         /// <param name="stream">stream</param>
         /// <returns></returns>
@@ -822,10 +849,35 @@ namespace PortableCSharpLib.TechnicalAnalysis
         {
             this.Symbol = symbol;
         }
+
+
+        public int Append(IQuoteCapture q, bool isTriggerDataUpdated = false)
+        {
+            return this.Append(q, -1, false, isTriggerDataUpdated);
+        }
+
+        public int Append(IQuoteBasicBase q, bool isTriggerDataUpdated = false)
+        {
+            return this.Append(q, -1, false, isTriggerDataUpdated);
+        }
+
+        QuoteBasicBase IQuoteBasicBase.Extract(long stime, long etime)
+        {
+            var q = this.Extract(stime, etime);
+            if (q == null) return null;
+            return new QuoteBasicBase(q);
+        }
+
+        QuoteBasicBase IQuoteBasicBase.Extract(int sindex, int eindex)
+        {
+            var q = this.Extract(sindex, eindex);
+            if (q == null) return null;
+            return new QuoteBasicBase(q);
+        }
     }
 
     //[DataContract]
-    //public class QuoteBasic : IQuoteBasic
+    //public class QuoteBasicBase : IQuoteBasicBase
     //{
     //    public int Count { get { return Time.Count; } }
     //    public long FirstTime { get { return Time.FirstOrDefault(); } }
@@ -848,7 +900,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
     //    public List<double> Close { get; private set; }
     //    [DataMember]
     //    public List<double> Volume { get; private set; }
-    //    public QuoteBasic(string symbol, int interval)
+    //    public QuoteBasicBase(string symbol, int interval)
     //    {
     //        Symbol = symbol;
     //        Interval = interval;
@@ -861,7 +913,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
     //    }
 
     //    [JsonConstructor]
-    //    public QuoteBasic(String Symbol, int Interval, IList<long> Time, IList<double> Open, IList<double> Close, IList<double> High, IList<double> Low, IList<double> Volume)
+    //    public QuoteBasicBase(String Symbol, int Interval, IList<long> Time, IList<double> Open, IList<double> Close, IList<double> High, IList<double> Low, IList<double> Volume)
     //    {
     //        this.Symbol = Symbol;
     //        this.Interval = Interval;
@@ -872,7 +924,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
     //        this.Low = new List<double>(Low);
     //        this.Volume = new List<double>(Volume);
     //    }
-    //    public QuoteBasic(IQuoteBasic q)
+    //    public QuoteBasicBase(IQuoteBasicBase q)
     //    {
     //        Symbol = q.Symbol;
     //        Interval = q.Interval;
@@ -901,7 +953,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
     //            }
     //        }
     //    }
-    //    public int Append(IQuoteBasic q, int interval = -1, bool isFillGap = false)
+    //    public int Append(IQuoteBasicBase q, int interval = -1, bool isFillGap = false)
     //    {
     //        var numAddedElement = 0;
 
@@ -1116,7 +1168,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
 
     //        return index;
     //    }
-    //    public IQuoteBasic Extract(long stime, long etime)
+    //    public IQuoteBasicBase Extract(long stime, long etime)
     //    {
     //        int sindex = 0, eindex = this.Count - 1;            //by default we extrace whole data
 
@@ -1128,12 +1180,12 @@ namespace PortableCSharpLib.TechnicalAnalysis
 
     //        return Extract(sindex, eindex);
     //    }
-    //    public IQuoteBasic Extract(int sindex, int eindex)
+    //    public IQuoteBasicBase Extract(int sindex, int eindex)
     //    {
     //        if (sindex < 0 || eindex == -1 || eindex > this.Count - 1 || eindex < sindex) return null;
 
     //        int num = eindex - sindex + 1;
-    //        var quote = new QuoteBasic(Symbol, Interval);
+    //        var quote = new QuoteBasicBase(Symbol, Interval);
     //        quote.Time.AddRange(Time.GetRange(sindex, num));
     //        quote.Open.AddRange(Open.GetRange(sindex, num));
     //        quote.High.AddRange(High.GetRange(sindex, num));
@@ -1144,7 +1196,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
     //    }
 
     //    //insert missing quote
-    //    public bool Insert(IQuoteBasic q)
+    //    public bool Insert(IQuoteBasicBase q)
     //    {
     //        if (q == null || q.Count <= 0) return false;
     //        if (this.Symbol != q.Symbol || this.Interval != q.Interval) return false;

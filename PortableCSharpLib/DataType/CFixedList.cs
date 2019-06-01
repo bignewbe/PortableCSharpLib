@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace PortableCSharpLib.CommonClass
+namespace PortableCSharpLib.DataType
 {
     /// <summary>
     /// List with fixed length

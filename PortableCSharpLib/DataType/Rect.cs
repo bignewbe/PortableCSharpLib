@@ -1,4 +1,4 @@
-﻿namespace PortableCSharpLib.CommonClass
+﻿namespace PortableCSharpLib.DataType
 {
     /// <summary>
     /// Basic class for rectangle, with origin at top left. X axis pointing right, and Yaxis pointing down.

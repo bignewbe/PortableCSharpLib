@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace PortableCSharpLib.CommonClass
+namespace PortableCSharpLib.DataType
 {
     /// <summary>
     /// bi-directional dictionary

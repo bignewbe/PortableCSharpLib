@@ -1,85 +1,14 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DB3041C8-50A3-47EA-AF7F-82096C82CF20}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PortableCSharpLib</RootNamespace>
-    <AssemblyName>PortableCSharpLib</AssemblyName>
-    <DefaultLanguage>en-US</DefaultLanguage>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkProfile>Profile24</TargetFrameworkProfile>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\PortableCSharpLib.XML</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\PortableCSharpLib.XML</DocumentationFile>
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="DataType\BiDictionary.cs" />
-    <Compile Include="DataType\CFixedList.cs" />
-    <Compile Include="DataType\Rect.cs" />
-    <Compile Include="Exceptions.cs" />
-    <Compile Include="Interace\IDump.cs" />
-    <Compile Include="Interace\ILogger.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Extension.cs" />
-    <Compile Include="Constant.cs" />
-    <Compile Include="General.cs" />
-    <Compile Include="EventHandlers.cs" />
-    <Compile Include="Interace\IQuoteCapture.cs" />
-    <Compile Include="Interace\IQuoteBasic.cs" />
-    <Compile Include="Model\QuoteCapture.cs" />
-    <Compile Include="Model\QuoteBasic.cs" />
+    <Compile Remove="back\**" />
+    <EmbeddedResource Remove="back\**" />
+    <None Remove="back\**" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />  
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\portable-net40+sl5+win8+wp8+wpa81\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-  </ItemGroup>
-  <Target Name="Display">
-    <Message Text="LocalPath = $(MSBuildProjectDirectory)" />
-    <Message Text="MSBuildCommunityTasksPath = $(MSBuildCommunityTasksPath)" />
-  </Target>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <!-- <Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets"/> -->
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  <Target Name="Build">
-    <MakeDir Directories="$(OutputPath)" Condition="!Exists('$(OutputPath)')" />
-    <Csc Sources="@(Compile)" OutputAssembly="$(OutputPath)$(AssemblyName).exe" />
-  </Target>
-  <Target Name="Clean" >
-    <Delete Files="$(OutputPath)$(AssemblyName).exe" />
-  </Target>
-  <Target Name="CleanBuild" DependsOnTargets="Clean;Build" /> 
-  -->
 </Project>

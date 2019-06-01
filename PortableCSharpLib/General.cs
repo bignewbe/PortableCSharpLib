@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
@@ -336,6 +338,34 @@ namespace PortableCSharpLib
             //var weekStart = startDate.Date.AddDays((weekNo - currentWeekNo) * 7);
 
             return startDate;
+        }
+
+        // 注册一个委托，在该委托中抛出异常。
+        // 在action中调用可能会抛出异常的方法
+        // e为null表示任何异常。一般用于测试事件触发
+        public static bool AssertExceptionOccured(Action action, Type e = null)
+        {
+            bool execptionOccurred = false;
+            try
+            {
+                action.Invoke();
+            }
+            catch (Exception ex)
+            {
+                if (e == null || e == ex.GetType())
+                {
+                    execptionOccurred = true;
+                }
+            }
+            return execptionOccurred;
+        }
+
+        public static IPAddress GetLocalIPAddress()
+        {
+            if (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
+                return null;
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            return host.AddressList.FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork);
         }
     }
 }

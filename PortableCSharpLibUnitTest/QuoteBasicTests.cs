@@ -1,4 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PortableCSharpLib;
+using PortableCSharpLib.Interace;
 using PortableCSharpLib.TechnicalAnalysis;
 using System;
 using System.Collections.Generic;
@@ -41,27 +43,27 @@ namespace UnitTest
             // 非整数倍
             IQuoteBasic qb = new QuoteBasic("symbol1", 20);
             qb.Add(640, 1, 1, 1, 1, 1);
-            _quoteBasic.Append(qb); // 600
+            _quoteBasic.Append(qb, -1, false, false); // 600
             Assert.AreEqual(1, _quoteBasic.Count);
             Assert.AreEqual(600, _quoteBasic.LastTime);
 
             // 整数倍
             qb.Add(660, 1, 1, 1, 1, 1);
-            _quoteBasic.Append(qb);
+            _quoteBasic.Append(qb, -1, false, false);
             Assert.AreEqual(2, _quoteBasic.Count);
             Assert.AreEqual(600, _quoteBasic.Time[0]);
             Assert.AreEqual(660, _quoteBasic.Time[1]);
 
             // 为空
             qb.Clear();
-            _quoteBasic.Append(qb);
+            _quoteBasic.Append(qb, -1, false, false);
             Assert.AreEqual(2, _quoteBasic.Count);
             Assert.AreEqual(600, _quoteBasic.Time[0]);
             Assert.AreEqual(660, _quoteBasic.Time[1]); ;
 
             // 为null
             qb = null;
-            _quoteBasic.Append(qb);
+            _quoteBasic.Append(qb, -1, false, false);
             Assert.AreEqual(2, _quoteBasic.Count);
             Assert.AreEqual(600, _quoteBasic.Time[0]);
             Assert.AreEqual(660, _quoteBasic.Time[1]);
@@ -69,7 +71,7 @@ namespace UnitTest
             // 不填补空洞
             qb = new QuoteBasic("symbol1", 20);
             qb.Add(6000, 1, 1, 1, 1, 1);
-            _quoteBasic.Append(qb);
+            _quoteBasic.Append(qb, -1, false, false);
             Assert.AreEqual(3, _quoteBasic.Count);
             Assert.AreEqual(600, _quoteBasic.Time[0]);
             Assert.AreEqual(660, _quoteBasic.Time[1]);
@@ -182,27 +184,27 @@ namespace UnitTest
             // 非整数倍
             IQuoteCapture qc = new QuoteCapture("symbol1");
             qc.Add(620, 20);
-            _quoteBasic.Append(qc);
+            _quoteBasic.Append(qc,-1,false,false);
             Assert.AreEqual(1, _quoteBasic.Count);
             Assert.AreEqual(600, _quoteBasic.LastTime);
 
             // 整数倍
             qc.Add(660, 60);
-            _quoteBasic.Append(qc);
+            _quoteBasic.Append(qc, -1, false, false);
             Assert.AreEqual(2, _quoteBasic.Count);
             Assert.AreEqual(600, _quoteBasic.Time[0]);
             Assert.AreEqual(660, _quoteBasic.Time[1]);
 
             // 为空
             qc = new QuoteCapture("symbol1");
-            _quoteBasic.Append(qc);
+            _quoteBasic.Append(qc, -1, false, false);
             Assert.AreEqual(2, _quoteBasic.Count);
             Assert.AreEqual(600, _quoteBasic.Time[0]);
             Assert.AreEqual(660, _quoteBasic.Time[1]); ;
 
             // 为null
             qc = null;
-            _quoteBasic.Append(qc);
+            _quoteBasic.Append(qc, -1, false, false);
             Assert.AreEqual(2, _quoteBasic.Count);
             Assert.AreEqual(600, _quoteBasic.Time[0]);
             Assert.AreEqual(660, _quoteBasic.Time[1]);
@@ -321,17 +323,17 @@ namespace UnitTest
         {
             // 测试事件列表为空时
             AssertNoException(() => _quoteBasic.Add(100, 1, 1, 1, 1, 1, true), typeof(NullReferenceException));
+
             // 测试事件触发
-            _quoteBasic.QuoteBasicDataAdded += TestAddEventInternal;
-            AssertException(() =>
-                _quoteBasic.Add(600, 1, 1, 1, 1, 1, true), null);
+            _quoteBasic.OnDataAddedOrUpdated += TestAddEventInternal;
+            AssertException(() => _quoteBasic.Add(600, 1, 1, 1, 1, 1, true), null);
 
             // 测试不触发事件
-            _quoteBasic.QuoteBasicDataAdded += TestAddEventInternal;
+            _quoteBasic.OnDataAddedOrUpdated += TestAddEventInternal;
             AssertNoException(() => _quoteBasic.Add(100, 1, 1, 1, 1, 1), null);
         }
 
-        private void TestAddEventInternal(object sender, string symbol, int interval, long time, double open, double close, double high, double low, double volume)
+        private void TestAddEventInternal(object sender, IQuoteBasicBase quote, int numAppended)
         {
             throw new Exception();
         }
@@ -400,7 +402,7 @@ namespace UnitTest
         [TestMethod]
         public void TestExtract_LongLong()
         {
-            IQuoteBasic qb1 = _quoteBasic.Extract(0L, 0L);
+            var qb1 = _quoteBasic.Extract(0L, 0L);
             Assert.IsNull(qb1);
 
             _quoteBasic.Add(100, 1, 1, 1, 1, 1, false);
@@ -410,15 +412,15 @@ namespace UnitTest
             _quoteBasic.Add(500, 1, 1, 1, 1, 1, false);
 
             qb1 = _quoteBasic.Extract(250L, 350L);
-            Assert.AreEqual(1, qb1.Count);
-            Assert.AreEqual(300, qb1.Time[0]);
+            Assert.AreEqual(2, qb1.Count);
+            Assert.AreEqual(200, qb1.Time[0]);
 
             qb1 = _quoteBasic.Extract(250L, 400L);
-            Assert.AreEqual(2, qb1.Count);
-            Assert.AreEqual(300, qb1.Time[0]);
-            Assert.AreEqual(400, qb1.Time[1]);
-
-
+            Assert.AreEqual(3, qb1.Count);
+            Assert.AreEqual(200, qb1.Time[0]);
+            Assert.AreEqual(300, qb1.Time[1]);
+            Assert.AreEqual(400, qb1.Time[2]);
+            
             qb1 = _quoteBasic.Extract(350L, 250L);
             Assert.IsNull(qb1);
 
@@ -451,38 +453,43 @@ namespace UnitTest
         // 注册一个委托，在该委托中抛出异常。
         // 在action中调用可能会抛出异常的方法
         // e为null表示任何异常。一般用于测试事件触发
-        public void AssertException(Action action, Type e = null)
+        public static void AssertException(Action action, Type e = null)
         {
-            bool isSuccessed = false;
-            try {
-                action.Invoke();
-            }
-            catch (Exception ex) {
-                if (e == null || e == ex.GetType()) {
-                    isSuccessed = true;
-                }
-            }
-            if (!isSuccessed) {
+            if (!General.AssertExceptionOccured(action, e))
                 Assert.Fail();
-            }
+
+            //bool isSuccessed = false;
+            //try {
+            //    action.Invoke();
+            //}
+            //catch (Exception ex) {
+            //    if (e == null || e == ex.GetType()) {
+            //        isSuccessed = true;
+            //    }
+            //}
+            //if (!isSuccessed) {
+            //    Assert.Fail();
+            //}
         }
 
         // 测试没有抛出指定的异常
-        public void AssertNoException(Action action, Type e = null)
+        public static void AssertNoException(Action action, Type e = null)
         {
-            bool isSuccessed = false;
-            try {
-                action.Invoke();
-            }
-            catch (Exception ex) {
-                if (e == null || e == ex.GetType()) {
-                    isSuccessed = true;
-                }
-            }
-            if (isSuccessed) {
+            if (General.AssertExceptionOccured(action, e))
                 Assert.Fail();
-            }
-        }
 
+            //bool isSuccessed = false;
+            //try {
+            //    action.Invoke();
+            //}
+            //catch (Exception ex) {
+            //    if (e == null || e == ex.GetType()) {
+            //        isSuccessed = true;
+            //    }
+            //}
+            //if (isSuccessed) {
+            //    Assert.Fail();
+            //}
+        }
     }
 }
