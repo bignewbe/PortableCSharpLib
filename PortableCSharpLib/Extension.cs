@@ -13,6 +13,32 @@ namespace PortableCSharpLib
     /// </summary>
     public static class Extension
     {
+        public new static bool Equals(this object obj, object other)
+        {
+            if (other == null) return false;
+            var properties = obj.GetType().GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).ToList();
+            foreach (var p in properties)
+            {
+                var v1 = p.GetValue(obj);
+                var v2 = p.GetValue(other);
+                if (v1 == null && v2 == null) continue;
+                if (v1 == null || v2 == null) return false;
+                if (!v1.Equals(v2)) return false;
+            }
+            return true;
+        }
+
+        public static void Copy(this object obj, object other)
+        {
+            if (other == null) return;
+            var properties = obj.GetType().GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).ToList();
+            foreach (var p in properties)
+            {
+                var v2 = p.GetValue(other);
+                p.SetValue(obj, v2);
+            }
+        }
+
         static Extension() { General.CheckDateTime(); }
         /// <summary>
         /// convert list to string for printing
@@ -131,7 +157,7 @@ namespace PortableCSharpLib
         {
             return new { Year = time.Year, Month = time.Month, Day = time.Day };
         }
-                
+
         /// <summary>
         /// Get week number of given date
         /// </summary>

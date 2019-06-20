@@ -1,11 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>db3041c8-50a3-47ea-af7f-82096c82cf20</ProjectGuid>
+  </PropertyGroup>
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="back\**" />
+    <Compile Remove="Serialize\**" />
     <EmbeddedResource Remove="back\**" />
+    <EmbeddedResource Remove="Serialize\**" />
     <None Remove="back\**" />
+    <None Remove="Serialize\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Interace\IQuoteBasicFileStore.cs" />
+    <Compile Remove="Interace\IQuoteBasicMemStore.cs" />
+    <Compile Remove="Model\QuoteBasicFileStore.cs" />
+    <Compile Remove="Model\QuoteBasicMemStore.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />  

@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 namespace PortableCSharpLib.TechnicalAnalysis
 {
     /// <summary>
-    /// basic quote data structure defined as [0, 1, 2, 3, 4) => 0
+    /// basic quote data structure defined as [interval, interval*2). for example [0, 1, 2, 3, 4] => 0, [5,6,7,8,9] => 1
     /// </summary>
     public class QuoteBasicBase : IQuoteBasicBase
     {
@@ -144,6 +144,8 @@ namespace PortableCSharpLib.TechnicalAnalysis
             return -1;
         }
 
+
+        //[0,1,2,4,5)
         public int Append(IQuoteBasicBase q, bool isTriggerDataUpdated = false)
         {
             //no data to add
@@ -166,23 +168,24 @@ namespace PortableCSharpLib.TechnicalAnalysis
 
             int sindex = indexStartSearch; // interval区间的开始索引
             var eindex = -1;
-            var endTime = q.Time[sindex] + this.Interval;
+            var endTime = q.Time[sindex] / this.Interval * this.Interval + this.Interval;      //use the first time as the data bar time
             for (int i = indexStartSearch; i <= q.Count - 1; i++)
             {
                 if (q.Time[i] >= endTime)
                 {
-                    eindex = i - 1; // interval区间的结束索引
+                    eindex = i - 1;        // interval区间的结束索引
                     var num = this.AddItemByQuoteBasic(q, sindex, eindex);
-                    sindex = i;
-                    endTime += this.Interval;
                     if (num >= 0)
                     {
                         numAddedElement += num;
                         isDataChanged = true;
                     }
+                    sindex = i;
+                    endTime = q.Time[sindex] / this.Interval * this.Interval + this.Interval;
                 }
             }
 
+            //add last element
             if (sindex > eindex)
             {
                 var num = this.AddItemByQuoteBasic(q, sindex, q.Count - 1);
@@ -199,16 +202,16 @@ namespace PortableCSharpLib.TechnicalAnalysis
             return isDataChanged? numAddedElement : -1;  //-1 means nothing changed, 0 means updated, >=1 means added
         }
 
-        public int Append(IQuoteCapture qc, bool isTriggerDataUpdated = false)
+        public int Append(IQuoteCapture q, bool isTriggerDataUpdated = false)
         {
-            if (qc == null || qc.Count <= 0 || qc.LastTime <= this.LastTime || this.Symbol != qc.Symbol)
+            if (q == null || q.Count <= 0 || q.LastTime <= this.LastTime || this.Symbol != q.Symbol)
                 return 0;
 
             //search backward for the quotes. the found time should be >= lastTime
             int indexStartSearch = -1;
-            for (int i = qc.Count - 1; i >= 0; i--)
+            for (int i = q.Count - 1; i >= 0; i--)
             {
-                if (qc.Time[i] < this.LastTime)               //for basic quote we include price at previous interval for calculation
+                if (q.Time[i] < this.LastTime)               //for basic quote we include price at previous interval for calculation
                     break;
 
                 indexStartSearch = i;
@@ -216,31 +219,32 @@ namespace PortableCSharpLib.TechnicalAnalysis
             if (indexStartSearch == -1) return 0;
 
             ////////////////////////////////////////////////////////////////////////////
+            var isDataChanged = false;
             var numAddedElement = 0;
-            bool isDataChanged = false;
+
             int sindex = indexStartSearch; // interval区间的开始索引
-            int eindex = -1;
-            var endTime = qc.Time[sindex] / this.Interval * this.Interval;
-            for (int i = indexStartSearch; i <= qc.Count - 1; i++)
+            var eindex = -1;
+            var endTime = q.Time[sindex] / this.Interval * this.Interval + this.Interval;      //use the first time as the data bar time
+            for (int i = indexStartSearch; i <= q.Count - 1; i++)
             {
-                if (qc.Time[i] >= endTime)
+                if (q.Time[i] >= endTime)
                 {
-                    eindex = i - 1; // interval区间的结束索引
-                    var num = this.AddItemByQuoteCapture(qc, sindex, eindex);
+                    eindex = i - 1;        // interval区间的结束索引
+                    var num = this.AddItemByQuoteCapture(q, sindex, eindex);
                     if (num >= 0)
                     {
                         numAddedElement += num;
                         isDataChanged = true;
                     }
-
                     sindex = i;
-                    endTime += this.Interval;
+                    endTime = q.Time[sindex] / this.Interval * this.Interval + this.Interval;
                 }
             }
 
+            //add last element
             if (sindex > eindex)
             {
-                var num = this.AddItemByQuoteCapture(qc, sindex, eindex);
+                var num = this.AddItemByQuoteCapture(q, sindex, eindex);
                 if (num >= 0)
                 {
                     numAddedElement += num;
