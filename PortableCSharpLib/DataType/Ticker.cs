@@ -1,6 +1,8 @@
-﻿namespace PortableCSharpLib.DataType
+﻿using PortableCSharpLib.Interace;
+
+namespace PortableCSharpLib.DataType
 {
-    public class Ticker
+    public class Ticker : IIdEqualCopy<Ticker>
     {
         public string TimeStr { get { return Seconds.GetUTCFromUnixTime().ToLocalTime().ToString("yyyyMMdd hh:mm:ss"); } }
         public string Symbol { get; set; }
@@ -16,10 +18,12 @@
         public double Low { get; set; }
         public double Volume { get; set; }
         public double BaseVolume { get; set; }
+        public string Id { get { return this.Symbol; } }
 
         public Ticker()
         {
         }
+
         public Ticker(Ticker other)
         {
             this.Copy(other);
@@ -38,6 +42,21 @@
             this.Volume = other.Volume;
             this.OpenBuyOrders = other.OpenBuyOrders;
             this.OpenSellOrders = other.OpenSellOrders;
+        }
+
+        public bool Equals(Ticker other)
+        {
+            return (this.Symbol == other.Symbol &&
+                    this.Timestamp == other.Timestamp &&
+                    this.Bid == other.Bid &&
+                    this.Ask == other.Ask &&
+                    this.Last == other.Last &&
+                    this.High == other.High &&
+                    this.Low == other.Low &&
+                    this.BaseVolume == other.BaseVolume &&
+                    this.Volume == other.Volume &&
+                    this.OpenBuyOrders == other.OpenBuyOrders &&
+                    this.OpenSellOrders == other.OpenSellOrders);
         }
     }
 }

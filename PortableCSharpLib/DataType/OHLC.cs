@@ -1,8 +1,9 @@
-﻿using System;
+﻿using PortableCSharpLib.Interace;
+using System;
 
 namespace PortableCSharpLib.DataType
 {
-    public class OHLC : IEquatable<OHLC>
+    public class OHLC : IIdEqualCopy<OHLC>
     {
         public string Symbol { get; set; }
         public int Interval { get; set; }
@@ -12,6 +13,7 @@ namespace PortableCSharpLib.DataType
         public double Low { get; set; }
         public double Close { get; set; }
         public double Volume { get; set; }
+        public string Id { get { return this.Symbol; } }
 
         public OHLC() { }
         public OHLC(OHLC other) => this.Copy(other);

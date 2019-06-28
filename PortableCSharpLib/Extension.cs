@@ -4,7 +4,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Globalization;
-
+using PortableCSharpLib.DataType;
+using PortableCSharpLib.Interace;
 
 namespace PortableCSharpLib
 {
@@ -13,6 +14,50 @@ namespace PortableCSharpLib
     /// </summary>
     public static class Extension
     {
+        public static void UpdateListViewData<T>(this ListViewData<T> data, IList<T> items, int threadshouldToResetAll = 10) where T : class, IIdEqualCopy<T>
+        {
+            var bindingData = data.BindingItems;
+            var indiceToResetBinding = data.IndiceToResetBinding;
+            var idToIndex = data.ItemIdToIndex;
+
+            {
+                indiceToResetBinding.Clear();
+                if (items.Count != bindingData.Count)
+                {
+                    idToIndex.Clear();
+                    bindingData.Clear();
+                }
+
+                //update OpenOrders
+                foreach (var item in items)
+                {
+                    if (!idToIndex.ContainsKey(item.Id))
+                    {
+                        idToIndex.Add(item.Id, bindingData.Count);
+                        bindingData.Add((T)Activator.CreateInstance(typeof(T)));
+                    }
+
+                    var index = idToIndex[item.Id];
+                    if (!bindingData[index].Equals(item))
+                    {
+                        bindingData[index].Copy(item);
+                        indiceToResetBinding.Add(index);
+                    }
+                }
+
+                if (indiceToResetBinding.Count > threadshouldToResetAll)
+                {
+                    bindingData.ResetBindings();
+                }
+                else
+                {
+                    foreach (var i in indiceToResetBinding)
+                        bindingData.ResetItem(i);
+                }
+            }
+        }
+
+
         public new static bool Equals(this object obj, object other)
         {
             if (other == null) return false;
