@@ -102,6 +102,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
         }
 
         public event EventHandlers.DataAddedOrUpdatedEventHandler OnDataAddedOrUpdated;
+        public event EventHandlers.DataRemovedEventHandler OnDataRemoved;
 
         public void Add(long t, double o, double h, double l, double c, double v, bool isTriggerDataAdded = false)
         {
@@ -666,6 +667,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
             this.High.Clear();
             this.Low.Clear();
             this.Volume.Clear();
+            this.OnDataRemoved?.Invoke(this, this);
         }
 
         public void Clear(long stime, long etime)
@@ -706,6 +708,8 @@ namespace PortableCSharpLib.TechnicalAnalysis
             this.Open.RemoveRange(sindex, num);
             this.Close.RemoveRange(sindex, num);
             this.Volume.RemoveRange(sindex, num);
+
+            this.OnDataRemoved?.Invoke(this, this);
         }
 
         public void AppendStream(Stream stream)

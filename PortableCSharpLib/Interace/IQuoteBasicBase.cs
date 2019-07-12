@@ -96,6 +96,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
         /// int表示改变的数量，如果int = 0，表示更新了数据，数量没变。
         /// </summary>
         event EventHandlers.DataAddedOrUpdatedEventHandler OnDataAddedOrUpdated;
+        event EventHandlers.DataRemovedEventHandler OnDataRemoved;
 
         /// <summary>
         /// Find index for the given time. If isReturnJustSmallerElement == false, -1 will be returned if time is not found. 

@@ -103,6 +103,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
         }
 
         public event EventHandlers.DataAddedOrUpdatedEventHandler OnDataAddedOrUpdated;
+        public event EventHandlers.DataRemovedEventHandler OnDataRemoved;
         
         #region add data
         /// <summary>
@@ -143,8 +144,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
             }
             return -1;
         }
-
-
+        
         //[0,1,2,4,5)
         public int Append(IQuoteBasicBase q, bool isTriggerDataUpdated = false)
         {
@@ -481,6 +481,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
             this.High.Clear();
             this.Low.Clear();
             this.Volume.Clear();
+            this.OnDataRemoved?.Invoke(this, this);
         }
 
         //public void Clear(long stime, long etime)
@@ -521,6 +522,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
             this.Open.RemoveRange(sindex, num);
             this.Close.RemoveRange(sindex, num);
             this.Volume.RemoveRange(sindex, num);
+            this.OnDataRemoved?.Invoke(this, this);
         }
 
         public void AppendStream(Stream stream)
