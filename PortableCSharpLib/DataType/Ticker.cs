@@ -4,12 +4,12 @@ namespace PortableCSharpLib.DataType
 {
     public class Ticker : IIdEqualCopy<Ticker>
     {
-        public string TimeStr { get { return Seconds.GetUTCFromUnixTime().ToLocalTime().ToString("yyyyMMdd hh:mm:ss"); } }
+        //public string TimeStr { get { return Seconds.GetUTCFromUnixTime().ToLocalTime().ToString("yyyyMMdd hh:mm:ss"); } }
         public string Symbol { get; set; }
-        public int Miliseconds { get { return (int)(Timestamp % 1000); } }
-        public long Seconds { get { return Timestamp / 1000; } }
-        public int OpenBuyOrders { get; set; }
-        public int OpenSellOrders { get; set; }
+        //public int Miliseconds { get { return (int)(Timestamp % 1000); } }
+        //public long Seconds { get { return Timestamp / 1000; } }
+        //public int OpenBuyOrders { get; set; }
+        //public int OpenSellOrders { get; set; }
         public long Timestamp { get; set; }
         public double Bid { get; set; }
         public double Ask { get; set; }
@@ -31,23 +31,27 @@ namespace PortableCSharpLib.DataType
 
         public void Copy(Ticker other)
         {
-            this.Symbol = other.Symbol;
-            this.Timestamp = other.Timestamp;
-            this.Bid = other.Bid;
-            this.Ask = other.Ask;
-            this.Last = other.Last;
-            this.High = other.High;
-            this.Low = other.Low;
-            this.BaseVolume = other.BaseVolume;
-            this.Volume = other.Volume;
-            this.OpenBuyOrders = other.OpenBuyOrders;
-            this.OpenSellOrders = other.OpenSellOrders;
+            if (other != null)
+            {
+                this.Symbol = other.Symbol;
+                this.Bid = other.Bid;
+                this.Ask = other.Ask;
+                this.Last = other.Last;
+                this.High = other.High;
+                this.Low = other.Low;
+                this.BaseVolume = other.BaseVolume;
+                this.Volume = other.Volume;
+                this.Timestamp = other.Timestamp;
+                //this.OpenBuyOrders = other.OpenBuyOrders;
+                //this.OpenSellOrders = other.OpenSellOrders;
+            }
         }
 
         public bool Equals(Ticker other)
         {
+            if (other == null) return false;
+
             return (this.Symbol == other.Symbol &&
-                    this.Timestamp == other.Timestamp &&
                     this.Bid == other.Bid &&
                     this.Ask == other.Ask &&
                     this.Last == other.Last &&
@@ -55,8 +59,9 @@ namespace PortableCSharpLib.DataType
                     this.Low == other.Low &&
                     this.BaseVolume == other.BaseVolume &&
                     this.Volume == other.Volume &&
-                    this.OpenBuyOrders == other.OpenBuyOrders &&
-                    this.OpenSellOrders == other.OpenSellOrders);
+                    this.Timestamp == other.Timestamp);
+                    //this.OpenBuyOrders == other.OpenBuyOrders &&
+                    //this.OpenSellOrders == other.OpenSellOrders);
         }
     }
 }

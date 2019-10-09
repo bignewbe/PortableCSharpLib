@@ -22,7 +22,7 @@ namespace PortableCSharpLib.Util
             return true;
         }
 
-        public void Copy(object other)
+        public void Copy(T other)
         {
             if (other == null) return;
             var properties = this.GetType().GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.Instance).ToList();

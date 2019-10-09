@@ -85,6 +85,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
         /// <param name="isTriggerDataAdded">是否触发事件</param>
         int AddUpdate(long t, double o, double h, double l, double c, double v, bool isTriggerDataAdded = false);
 
+        int AddUpdate(string symbol, int interval, long t, double o, double h, double l, double c, double v, bool isTriggerDataAdded = false);
         /// <summary>
         /// event raised when Add is called with isTriggerDataAdded == true
         /// </summary>

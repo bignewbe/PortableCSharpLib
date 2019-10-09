@@ -14,49 +14,70 @@ namespace PortableCSharpLib
     /// </summary>
     public static class Extension
     {
-        public static void UpdateListViewData<T>(this ListViewData<T> data, IList<T> items, int threadshouldToResetAll = 10) where T : class, IIdEqualCopy<T>
-        {
-            var bindingData = data.BindingItems;
-            var indiceToResetBinding = data.IndiceToResetBinding;
-            var idToIndex = data.ItemIdToIndex;
+        //public static void UpdateListViewData<T>(this ListViewData<T> data, T item) where T : class, IIdEqualCopy<T>
+        //{
+        //    var items = data.Items;
+        //    var bindingData = data.BindingItems;
+        //    var indiceToResetBinding = data.IndiceToResetBinding;
+        //    var idToIndex = data.ItemIdToIndex;
 
-            {
-                indiceToResetBinding.Clear();
-                if (items.Count != bindingData.Count)
-                {
-                    idToIndex.Clear();
-                    bindingData.Clear();
-                }
+        //    if (!idToIndex.ContainsKey(item.Id))
+        //    {
+        //        idToIndex.Add(item.Id, bindingData.Count);
+        //        bindingData.Add((T)Activator.CreateInstance(typeof(T)));
+        //    }
 
-                //update OpenOrders
-                foreach (var item in items)
-                {
-                    if (!idToIndex.ContainsKey(item.Id))
-                    {
-                        idToIndex.Add(item.Id, bindingData.Count);
-                        bindingData.Add((T)Activator.CreateInstance(typeof(T)));
-                    }
+        //    var index = idToIndex[item.Id];
+        //    if (!bindingData[index].Equals(item))
+        //    {
+        //        bindingData[index].Copy(item);
+        //        indiceToResetBinding.Add(index);
+        //        bindingData.ResetItem(index);
+        //    }
+        //}
 
-                    var index = idToIndex[item.Id];
-                    if (!bindingData[index].Equals(item))
-                    {
-                        bindingData[index].Copy(item);
-                        indiceToResetBinding.Add(index);
-                    }
-                }
+        //public static void UpdateListViewData<T>(this ListViewData<T> data, params T[] items) where T : class, IIdEqualCopy<T>
+        //{
+        //    foreach (var item in items) data.AddUpdateItems(item);
+        //    //data.UpdateBindingItems();
 
-                if (indiceToResetBinding.Count > threadshouldToResetAll)
-                {
-                    bindingData.ResetBindings();
-                }
-                else
-                {
-                    foreach (var i in indiceToResetBinding)
-                        bindingData.ResetItem(i);
-                }
-            }
-        }
+        //    var bindingData = data.BindingItems;
+        //    var indiceToResetBinding = data.IndiceToResetBinding;
+        //    var idToIndex = data.ItemIdToIndex;
+        //    indiceToResetBinding.Clear();
+        //    if (items.Length != bindingData.Count)
+        //    {
+        //        idToIndex.Clear();
+        //        bindingData.Clear();
+        //    }
 
+        //    //update OpenOrders
+        //    foreach (var item in items)
+        //    {
+        //        if (!idToIndex.ContainsKey(item.Id))
+        //        {
+        //            idToIndex.Add(item.Id, bindingData.Count);
+        //            bindingData.Add((T)Activator.CreateInstance(typeof(T)));
+        //        }
+
+        //        var index = idToIndex[item.Id];
+        //        if (!bindingData[index].Equals(item))
+        //        {
+        //            bindingData[index].Copy(item);
+        //            indiceToResetBinding.Add(index);
+        //        }
+        //    }
+
+        //    if (indiceToResetBinding.Count > 10)
+        //    {
+        //        bindingData.ResetBindings();
+        //    }
+        //    else
+        //    {
+        //        foreach (var i in indiceToResetBinding)
+        //            bindingData.ResetItem(i);
+        //    }
+        //}
 
         public new static bool Equals(this object obj, object other)
         {

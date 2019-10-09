@@ -104,7 +104,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
 
         public event EventHandlers.DataAddedOrUpdatedEventHandler OnDataAddedOrUpdated;
         public event EventHandlers.DataRemovedEventHandler OnDataRemoved;
-        
+
         #region add data
         /// <summary>
         /// >=1 means added
@@ -140,11 +140,42 @@ namespace PortableCSharpLib.TechnicalAnalysis
                 Close[this.Count - 1] = c;
                 Volume[this.Count - 1] = v;
                 if (isTriggerDataAdded) OnDataAddedOrUpdated?.Invoke(this, this, 0);
-                return 0;  
+                return 0;
             }
             return -1;
         }
-        
+
+        public int AddUpdate(string symbol, int interval, long t, double o, double h, double l, double c, double v, bool isTriggerDataAdded = false)
+        {
+            if (this.Symbol != symbol || this.Interval < interval || this.Interval%interval != 0) return 0;
+
+            var time = t / this.Interval * this.Interval;
+            if (this.Count == 0 || time > this.LastTime)
+            {
+                Open.Add(o);
+                High.Add(h);
+                Low.Add(l);
+                Close.Add(c);
+                Volume.Add(v);
+                Time.Add(time);
+                if (isTriggerDataAdded) OnDataAddedOrUpdated?.Invoke(this, this, 1);
+                return 1;
+            }
+            else if (time == this.LastTime)
+            {
+                High[this.Count - 1] = Math.Max(h, High[this.Count - 1]);
+                Low[this.Count - 1] = Math.Min(Low[this.Count - 1], l);
+                Close[this.Count - 1] = c;
+                if (interval == this.Interval)
+                    Volume[this.Count - 1] = v;
+                else
+                    Volume[this.Count - 1] += v;
+                if (isTriggerDataAdded) OnDataAddedOrUpdated?.Invoke(this, this, 0);
+                return 0;
+            }
+            return -1;
+        }
+
         //[0,1,2,4,5)
         public int Append(IQuoteBasicBase q, bool isTriggerDataUpdated = false)
         {
