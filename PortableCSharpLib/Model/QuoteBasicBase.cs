@@ -275,7 +275,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
             //add last element
             if (sindex > eindex)
             {
-                var num = this.AddItemByQuoteCapture(q, sindex, eindex);
+                var num = this.AddItemByQuoteCapture(q, sindex, q.Count - 1);
                 if (num >= 0)
                 {
                     numAddedElement += num;
