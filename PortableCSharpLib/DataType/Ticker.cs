@@ -19,6 +19,8 @@ namespace PortableCSharpLib.DataType
         public double Volume { get; set; }
         public double BaseVolume { get; set; }
         public string Id { get { return this.Symbol; } }
+        public double BidQty { get; set; }
+        public double AskQty { get; set; }
 
         public Ticker()
         {
@@ -36,6 +38,8 @@ namespace PortableCSharpLib.DataType
                 this.Symbol = other.Symbol;
                 this.Bid = other.Bid;
                 this.Ask = other.Ask;
+                this.BidQty = other.BidQty;
+                this.AskQty = other.AskQty;
                 this.Last = other.Last;
                 this.High = other.High;
                 this.Low = other.Low;
@@ -54,6 +58,8 @@ namespace PortableCSharpLib.DataType
             return (this.Symbol == other.Symbol &&
                     this.Bid == other.Bid &&
                     this.Ask == other.Ask &&
+                    this.BidQty == other.BidQty &&
+                    this.AskQty == other.AskQty &&
                     this.Last == other.Last &&
                     this.High == other.High &&
                     this.Low == other.Low &&

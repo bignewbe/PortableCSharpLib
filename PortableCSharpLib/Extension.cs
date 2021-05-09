@@ -190,11 +190,11 @@ namespace PortableCSharpLib
         /// <summary>
         /// convert time in seconds to universal time zone
         /// </summary>
-        /// <param name="time">time in seconds since 1970/01/01 00:00:00</param>
+        /// <param name="seconds">time in seconds since 1970/01/01 00:00:00</param>
         /// <returns></returns>
-        public static DateTime GetUTCFromUnixTime(this long time)
+        public static DateTime GetUTCFromUnixTime(this long seconds)
         {
-            return Constant.EpochUTC.AddSeconds(time);
+            return Constant.EpochUTC.AddSeconds(seconds);
         }
         /// <summary>
         /// convert 
@@ -203,7 +203,15 @@ namespace PortableCSharpLib
         /// <returns></returns>
         public static long GetUnixTimeFromUTC(this DateTime time)
         {
-            return Convert.ToInt64((time - Constant.EpochUTC).TotalSeconds);  //note this round to the closest seconds
+            return Convert.ToInt64((time - Constant.EpochUTC).TotalSeconds);      //note this round to the closest seconds
+        }
+        public static long GetMiliSecondsFromUTC(this DateTime time)
+        {
+            return Convert.ToInt64((time - Constant.EpochUTC).TotalMilliseconds);  //note this round to the closest seconds
+        }
+        public static DateTime GetUTCFromMiliSeconds(this long miliSeconds)
+        {
+            return Constant.EpochUTC.AddMilliseconds(miliSeconds);
         }
         /// <summary>
         /// create json date {Year, Month, Day}
