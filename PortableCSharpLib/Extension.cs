@@ -5,7 +5,13 @@ using System.Reflection;
 using System.Text;
 using System.Globalization;
 using PortableCSharpLib.DataType;
-using PortableCSharpLib.Interace;
+using PortableCSharpLib.TechnicalAnalysis;
+using System.IO;
+using System.Xml;
+using System.Xml.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Collections.Specialized;
 
 namespace PortableCSharpLib
 {
@@ -434,5 +440,202 @@ namespace PortableCSharpLib
             return type.IsNumericType() || type.IsString();
         }
         #endregion
+
+        public static DateTime ConvertUTCToTimeZone(this DateTime time, string timeZone)
+        {
+            TimeZoneInfo timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZone);
+            return TimeZoneInfo.ConvertTimeFromUtc(time, timeZoneInfo);
+        }
+        public static DateTime ConvertUTCToEastern(this DateTime time)
+        {
+            return time.ConvertUTCToTimeZone("Eastern Standard Time");
+        }
+        public static DateTime ConvertTimeZoneToUTC(this DateTime time, string timeZone)
+        {
+            return TimeZoneInfo.ConvertTimeToUtc(time, TimeZoneInfo.FindSystemTimeZoneById(timeZone));
+        }
+        public static DateTime ConvertEasternToUTC(this DateTime time)
+        {
+            return time.ConvertTimeZoneToUTC("Eastern Standard Time");
+        }
+
+        public static XmlDocument ToXmlDocument(this XDocument xDocument)
+        {
+            var xmlDocument = new XmlDocument();
+            using (var xmlReader = xDocument.CreateReader())
+            {
+                xmlDocument.Load(xmlReader);
+            }
+            return xmlDocument;
+        }
+        public static XDocument ToXDocument(this XmlDocument xmlDocument)
+        {
+            using (var nodeReader = new XmlNodeReader(xmlDocument))
+            {
+                nodeReader.MoveToContent();
+                return XDocument.Load(nodeReader);
+            }
+        }
+
+        public static T Clone<T>(this T source)
+        {
+            if (!typeof(T).IsSerializable)
+            {
+                throw new ArgumentException("The type must be serializable.", "source");
+            }
+
+            // Don't serialize a null object, simply return the default for that object
+            if (Object.ReferenceEquals(source, null))
+            {
+                return default(T);
+            }
+
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new MemoryStream();
+            using (stream)
+            {
+                formatter.Serialize(stream, source);
+                stream.Seek(0, SeekOrigin.Begin);
+                return (T)formatter.Deserialize(stream);
+            }
+        }
+        public static SerializableStringDictionary ToSerializableStringDictionary(this StringCollection sc)
+        {
+            if (sc == null || sc.Count % 2 != 0)
+            {
+                throw new InvalidDataException("null or broken dictionary");
+            }
+
+            var dic = new SerializableStringDictionary();
+            for (var i = 0; i < sc.Count; i += 2)
+            {
+                dic.Add(sc[i], sc[i + 1]);
+            }
+            return dic;
+        }
+        public static Dictionary<string, string> ToDictionary(this StringCollection sc)
+        {
+            if (sc == null || sc.Count % 2 != 0)
+            {
+                throw new InvalidDataException("null or broken dictionary");
+            }
+
+            var dic = new Dictionary<string, string>();
+            for (var i = 0; i < sc.Count; i += 2)
+            {
+                dic.Add(sc[i], sc[i + 1]);
+            }
+            return dic;
+        }
+        public static StringCollection ToStringCollection(this Dictionary<string, string> dic)
+        {
+            if (dic == null)
+            {
+                throw new InvalidDataException("null SerializableStringDictionary");
+            }
+
+            var sc = new StringCollection();
+            foreach (string k in dic.Keys)
+            {
+                sc.Add(k);
+                sc.Add(dic[k]);
+            }
+            return sc;
+        }
+        public static List<string> ToList(this StringCollection sc)
+        {
+            if (sc == null)
+            {
+                throw new InvalidDataException("null string collection");
+            }
+
+            var list = new List<string>();
+            for (int i = 0; i < sc.Count; i++)
+                list.Add(sc[i]);
+
+            return list;
+        }
+
+        public static bool Equals<T>(this T obj, object other) where T : class
+        {
+            if (other == null) return false;
+            var properties = obj.GetType().GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).ToList();
+            foreach (var p in properties)
+            {
+                var v1 = p.GetValue(obj);
+                var v2 = p.GetValue(other);
+                if (v1 == null && v2 == null) continue;
+                if (v1 == null || v2 == null) return false;
+                if (!v1.Equals(v2)) return false;
+            }
+            return true;
+        }
+
+        public static void Copy<T>(this T obj, object other) where T : class
+        {
+            if (other == null) return;
+            var properties = obj.GetType().GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).ToList();
+            foreach (var p in properties)
+            {
+                var v2 = p.GetValue(other);
+                p.SetValue(obj, v2);
+            }
+        }
+
+        public static DateTime UTCtoEastern(string date, string time)
+        {
+            int year = Convert.ToInt32(date.Substring(0, 4));
+            int month = Convert.ToInt32(date.Substring(4, 2));
+            int day = Convert.ToInt32(date.Substring(6, 2));
+
+            int hours = Convert.ToInt32(time.Substring(0, 2));
+            int mins = Convert.ToInt32(time.Substring(2, 2));
+            int sec = Convert.ToInt32(time.Substring(4, 2));
+
+            DateTime utcTime = new DateTime(year, month, day, hours, mins, sec, DateTimeKind.Utc);
+            TimeZoneInfo easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+            return TimeZoneInfo.ConvertTimeFromUtc(utcTime, easternZone);
+        }
+
+        public static string EscapeBracket(this string input)
+        {
+            if (string.IsNullOrEmpty(input)) return input;
+
+            var output = input;
+
+            if (input.Contains('('))
+                output = output.Replace("(", "\\(");
+
+            if (input.Contains(')'))
+                output = output.Replace(")", "\\)");
+
+            return output;
+        }
+    }
+
+    public static class QuoteBasicExension
+    {
+        public static void SaveToFile(this IQuoteBasicBase quote, string filename)
+        {
+            var writestream = new FileStream(filename, FileMode.Create);
+            quote.AppendStream(writestream);
+            writestream.Close();
+        }
+
+        public static IQuoteBasicBase LoadFile(this IQuoteBasicBase quote, string filename)
+        {
+            var readtream = new FileStream(filename, FileMode.Open);
+            quote = QuoteBasicBase.InitByStream(readtream);
+            readtream.Close();
+            return quote;
+        }
+
+        public static IQuoteBasicBase LoadFile(string filename)
+        {
+            var readtream = new FileStream(filename, FileMode.Open);
+            var quote = QuoteBasicBase.InitByStream(readtream);
+            readtream.Close();
+            return quote;
+        }
     }
 }
