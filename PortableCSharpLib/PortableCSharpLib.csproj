@@ -7,15 +7,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="back\**" />
+    <Compile Remove="Facility\**" />
     <Compile Remove="Serialize\**" />
     <EmbeddedResource Remove="back\**" />
+    <EmbeddedResource Remove="Facility\**" />
     <EmbeddedResource Remove="Serialize\**" />
     <None Remove="back\**" />
+    <None Remove="Facility\**" />
     <None Remove="Serialize\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="Facility\BindingHelper.cs" />
-    <Compile Remove="Facility\Facility.cs" />
   </ItemGroup>
   <ItemGroup>  
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />  
