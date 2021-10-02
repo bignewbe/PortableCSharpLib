@@ -13,9 +13,9 @@ namespace PortableCSharpLib.Interface
         List<int> Intervals { get; }
         ConcurrentDictionary<string, QuoteBasicBase> Quotes { get; }
         event EventHandlers.QuoteBasicDataAddedOrUpdatedEventHandler OnQuoteBasicDataAddedOrUpdated;
-        void AddQuoteCapture(IQuoteCapture qc);
-        void AddQuoteBasic(IQuoteBasicBase qb, bool isAddToAll);
-        void AddCandle(List<OHLC> ohlc, bool isAddToAll);
+        void AddQuoteCapture(IQuoteCapture qc, bool isTriggerEvent);
+        void AddQuoteBasic(IQuoteBasicBase qb, bool isAddToAll, bool isTriggerEvent);
+        void AddCandle(List<OHLC> ohlc, bool isAddToAll, bool isTriggerEvent);
         /// <summary>
         /// add single bar
         /// </summary>
@@ -28,7 +28,7 @@ namespace PortableCSharpLib.Interface
         /// <param name="low"></param>
         /// <param name="volume"></param>
         /// <param name="isAddToAll">indicate wether add candle to all quotes of intervals greater than interval</param>
-        void AddCandle(string symbol, int interval, long time, double open, double close, double high, double low, double volume, bool isAddToAll);
+        void AddCandle(string symbol, int interval, long time, double open, double close, double high, double low, double volume, bool isAddToAll, bool isTriggerEvent);
         QuoteBasicBase GetQuoteBasic(string symbol, int interval);
     }
 }

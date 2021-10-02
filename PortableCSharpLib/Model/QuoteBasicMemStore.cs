@@ -44,20 +44,19 @@ namespace PortableCSharpLib.Model
             return quoteId;
         }
 
-        public void AddCandle(List<OHLC> ohlc, bool isAddToAll)
+        public void AddCandle(List<OHLC> ohlc, bool isAddToAll, bool isTriggerEvent)
         {
             if (ohlc == null || ohlc.Count == 0) return;
             var q = new QuoteBasicBase(ohlc);
-            this.AddQuoteBasic(q, isAddToAll);
+            this.AddQuoteBasic(q, isAddToAll, isTriggerEvent);
         }
 
-        public void AddCandle(string symbol, int interval, long time, double open, double close, double high, double low, double volume, bool isAddToAll)
+        public void AddCandle(string symbol, int interval, long time, double open, double close, double high, double low, double volume, bool isAddToAll, bool isTriggerEvent)
         {
             lock (this)
             {
                 if (Intervals.Contains(interval))
                 {
-                    var isTriggerEvent = true;
                     if (isAddToAll)
                     {
                         var index = this.Intervals.FindIndex(i => i == interval);
@@ -80,7 +79,7 @@ namespace PortableCSharpLib.Model
             }
         }
 
-        public void AddQuoteCapture(IQuoteCapture qc)
+        public void AddQuoteCapture(IQuoteCapture qc, bool isTriggerEvent)
         {
             lock (this)
             {
@@ -89,20 +88,19 @@ namespace PortableCSharpLib.Model
                 var num = Quotes[quoteId].Append(qc, false);
                 if (num >= 0)
                 {
-                    var d = this.AddToOtherQuotes(Quotes[quoteId], 1, true);
+                    var d = this.AddToOtherQuotes(Quotes[quoteId], 1, isTriggerEvent);
                     //QuoteStore_OnDataAddedOrUpdated(this, this.Quotes[quoteId], num);
                     //foreach (var id in d.Keys) QuoteStore_OnDataAddedOrUpdated(this, this.Quotes[id], d[id]);
                 }
             }
         }
 
-        public void AddQuoteBasic(IQuoteBasicBase qb, bool isAddToAll)
+        public void AddQuoteBasic(IQuoteBasicBase qb, bool isAddToAll, bool isTriggerEvent)
         {
             lock (this)
             {
                 if (qb != null && qb.Count > 0 && Intervals.Contains(qb.Interval))
                 {
-                    var isTriggerEvent = true;
                     if (isAddToAll)
                     {
                         var index = this.Intervals.FindIndex(i => i == qb.Interval);
@@ -120,7 +118,7 @@ namespace PortableCSharpLib.Model
                     else
                     {
                         var quoteId = this.CreateQuote(qb.Symbol, qb.Interval);
-                        var num = Quotes[quoteId].Append(qb, true);
+                        var num = Quotes[quoteId].Append(qb, isTriggerEvent);
                     }
                 }
             }

@@ -34,7 +34,7 @@ namespace UnitTest
             var q = this.CreateQuoteBasic("symbol", interval, 0, 10000);
 
             for (int i = 0; i < 3700; i++)
-                qbstore.AddCandle(q.Symbol, q.Interval, q.Time[i], q.Open[i], q.Close[i], q.High[i], q.Low[i], q.Volume[i], true);
+                qbstore.AddCandle(q.Symbol, q.Interval, q.Time[i], q.Open[i], q.Close[i], q.High[i], q.Low[i], q.Volume[i], true, true);
 
             var q1 = qbstore.GetQuoteBasic("symbol", 60);
             Assert.IsTrue(q1.Count == 3700);
@@ -55,7 +55,7 @@ namespace UnitTest
                 var qbstore = new QuoteBasicMemStore("Okex", 1000000, _intervals);
                 var interval = 60;
                 var q = this.CreateQuoteBasic("symbol", interval, 0, 10000);
-                qbstore.AddQuoteBasic(q, true);
+                qbstore.AddQuoteBasic(q, true, true);
 
                 var q1 = qbstore.GetQuoteBasic("symbol", 60);
                 Assert.IsTrue(q1.Count == 10000);
@@ -72,7 +72,7 @@ namespace UnitTest
                 var qbstore = new QuoteBasicMemStore("Okex", 100, _intervals);
                 var interval = 60;
                 var q = this.CreateQuoteBasic("symbol", interval, 0, 10000);
-                qbstore.AddQuoteBasic(q, true);
+                qbstore.AddQuoteBasic(q, true, true);
 
                 var q1 = qbstore.GetQuoteBasic("symbol", 60);
                 Assert.IsTrue(q1.Count == 100);

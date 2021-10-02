@@ -187,7 +187,7 @@ namespace PortableCSharpLib.Model
         }
 
         //file naming convention: exchange_symbol_interval_index.txt
-        public bool Save(IQuoteBasicBase quote)
+        public bool Save(IQuoteBasicBase quote, int numBarsToRemoveGap=-1)
         {
             lock (this)
             {
@@ -198,6 +198,19 @@ namespace PortableCSharpLib.Model
                 {
                     files.Sort();
                     var q1 = QuoteBasicExension.LoadFile(files.Last());
+
+                    if (numBarsToRemoveGap > 0)
+                    {
+                        for (int i = Math.Max(0, q1.Count - numBarsToRemoveGap); i < q1.Count - 1; i++)
+                        {
+                            if (q1.Time[i + 1] - q1.Time[i] > q1.Interval)
+                            {
+                                q1.Clear(i + 1, q1.Count - 1);
+                                break;
+                            }
+                        }
+                    }
+
                     //var readtream = new FileStream(files.Last(), FileMode.Open);
                     //var q1 = QuoteBasicBase.InitByStream(readtream);
                     //readtream.Close();

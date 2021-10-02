@@ -11,7 +11,7 @@ namespace PortableCSharpLib.Interface
 
         Task<bool> Update(IQuoteBasicDownloader download, string symbol, int interval, int timeout = 50000);
         QuoteBasicBase Load(string symbol, int interval, long? startTime, int maxCount=500);
-        bool Save(IQuoteBasicBase quote);
+        bool Save(IQuoteBasicBase quote, int numBarsToRemoveGap = -1);
 
         event EventHandlers.QuoteSavedEventHandler OnQuoteSaved;
     }
