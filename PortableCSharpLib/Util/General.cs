@@ -10,10 +10,6 @@ using System.Xml.Serialization;
 
 namespace PortableCSharpLib
 {
-    public class SpotGrpcService : My.Grpc.Common.GeneralGrpcService.GeneralGrpcServiceBase
-    {
-    }
-
     /// <summary>
     /// Generic facility functions
     /// </summary>
