@@ -10,6 +10,10 @@ using System.Xml.Serialization;
 
 namespace PortableCSharpLib
 {
+    public class SpotGrpcService : My.Grpc.Common.GeneralGrpcService.GeneralGrpcServiceBase
+    {
+    }
+
     /// <summary>
     /// Generic facility functions
     /// </summary>
@@ -203,7 +207,7 @@ namespace PortableCSharpLib
             output.Append("|\n");
             return output.ToString();
         }
-        
+
         /// <summary>
         /// prepend/append space to a string such that the string reach a fixed length
         /// </summary>
@@ -226,19 +230,19 @@ namespace PortableCSharpLib
         /// <param name="data"></param>
         /// <param name="isReturnJustSmallerElement">if true, will return index if: 1) data is not in the list 2) but data is within the range </param>
         /// <returns></returns>
-        public static int BinarySearch<T>(IList<T> list, int low, int high, T data, bool isReturnJustSmallerElement=false) where T : IComparable
+        public static int BinarySearch<T>(IList<T> list, int low, int high, T data, bool isReturnJustSmallerElement = false) where T : IComparable
         {
             if (list == null || low < 0 || high > list.Count - 1)
                 return -1;
 
-            while(low <= high)   //still has space to search
+            while (low <= high)   //still has space to search
             {
                 var mid = (low + high) / 2;
 
                 var r = data.CompareTo(list[mid]);
                 if (r == 0)
                     return mid;
-                
+
                 if (r < 0)
                     high = mid - 1;
                 else
@@ -251,7 +255,7 @@ namespace PortableCSharpLib
 
             return -1;
         }
-        
+
         /// <summary>
         /// Serialize objec to xml string
         /// </summary>

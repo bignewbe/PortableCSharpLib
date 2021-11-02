@@ -1,0 +1,16 @@
+﻿syntax = "proto3";
+
+package my.grpc.common;
+option csharp_namespace = "My.Grpc.Common";
+
+message GrpcMsg {
+    string Id = 1;
+	string Data = 2;
+    int32 Code = 3;
+	string Msg = 4;
+}
+
+service GeneralGrpcService {
+  rpc GeneralRequest (GrpcMsg) returns (GrpcMsg);
+  rpc GeneralRequestStream (GrpcMsg) returns (stream GrpcMsg);
+}
