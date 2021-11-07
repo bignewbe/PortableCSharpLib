@@ -135,6 +135,7 @@ namespace PortableCSharpLib.Model
 
         public static QuoteBasicBase LoadQuote(string filename)
         {
+            Console.WriteLine($"QuoteBasicFileStore: load... {filename}");
             var readtream = new FileStream(filename, FileMode.Open);
             var q1 = QuoteBasicBase.InitByStream(readtream);
             readtream.Close();
