@@ -135,11 +135,22 @@ namespace PortableCSharpLib.Model
 
         public static QuoteBasicBase LoadQuote(string filename)
         {
-            Console.WriteLine($"QuoteBasicFileStore: load... {filename}");
-            var readtream = new FileStream(filename, FileMode.Open);
-            var q1 = QuoteBasicBase.InitByStream(readtream);
-            readtream.Close();
-            return q1;
+            try
+            {
+                Console.WriteLine($"QuoteBasicFileStore: load... {filename}");
+                var readtream = new FileStream(filename, FileMode.Open);
+                var q1 = QuoteBasicBase.InitByStream(readtream);
+                readtream.Close();
+                return q1;
+            }
+            catch(FileFormatNotSupportedException ex)
+            {
+                Console.WriteLine("remove last line from file");
+                var lines = File.ReadAllLines(filename);
+                lines = lines.Take(lines.Length - 1).ToArray();
+                File.WriteAllLines(filename, lines);
+                throw ex;
+            }
         }
 
         public QuoteBasicBase Load(string symbol, int interval, long? startTime, int maxCount = 500)
