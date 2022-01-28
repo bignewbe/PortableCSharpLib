@@ -24,6 +24,27 @@ namespace PortableCSharpLib
         }
 
         //public static DateTime epochUTC = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        public static T Max<T>(params T[] items) where T : IComparable
+        {
+            var max = items[0];
+            for (int i = 1; i < items.Length; i++)
+            {
+                if (max.CompareTo(items[i]) < 0)
+                    max = items[i];
+            }
+            return max;
+        }
+        public static T Min<T>(params T[] items) where T : IComparable
+        {
+            var min = items[0];
+            for (int i = 1; i < items.Length; i++)
+            {
+                if (min.CompareTo(items[i]) > 0)
+                    min = items[i];
+            }
+            return min;
+        }
+
         public static T Min<T>(T a, T b, T c) where T : IComparable
         {
             if (a.CompareTo(b) < 0)
