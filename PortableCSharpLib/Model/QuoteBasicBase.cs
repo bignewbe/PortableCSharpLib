@@ -343,6 +343,26 @@ namespace PortableCSharpLib.TechnicalAnalysis
             return General.BinarySearch(Time, 0, Time.Count - 1, time, isReturnJustSmallerElement);
         }
 
+        public int FindIndexWhereTimeLocated(long time)
+        {
+            if (this.Count <= 0)
+                return -1;
+
+            var index = General.BinarySearch(Time, 0, Time.Count - 1, time, true);
+
+            if (index == -1 || Time[index] == time)
+                return index;
+
+            if (index < this.Count - 1 &&
+                Time[index + 1] >= (time / this.Interval + 1) * this.Interval)    //if give time is not in the list, BinarySearch returns the index of the element which is just smaller than given time                                           
+                ++index;                                                          //in this case, we should increment index
+            else
+                index = -1;
+
+            return index;
+        }
+
+
         public QuoteBasicBase Extract(long stime, long etime)
         {
             //var q = new QuoteBasic(this.Symbol, this.Interval);
