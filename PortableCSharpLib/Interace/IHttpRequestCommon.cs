@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace PortableCSharpLib.Interace
+namespace PortableCSharpLib.Interface
 {
     public interface IHttpRequestCommon
     {

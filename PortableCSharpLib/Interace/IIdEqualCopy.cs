@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PortableCSharpLib.Interace
+namespace PortableCSharpLib.Interface
 {
     public interface IIdEqualCopy<T> : IEquatable<T> where T : class
     {

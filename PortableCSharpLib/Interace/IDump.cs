@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace PortableCSharpLib.Interace
+namespace PortableCSharpLib.Interface
 {
     /// <summary>
     /// Interface to save and restore status of a class

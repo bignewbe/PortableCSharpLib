@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using PortableCSharpLib.DataType;
-using PortableCSharpLib.Interace;
+using PortableCSharpLib.Interface;
 using System;
 using System.Collections.Generic;
 using System.IO;

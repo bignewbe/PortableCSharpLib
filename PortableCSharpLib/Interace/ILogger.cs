@@ -1,4 +1,4 @@
-﻿namespace PortableCSharpLib.Interace
+﻿namespace PortableCSharpLib.Interface
 {
     public interface ILogger
     {

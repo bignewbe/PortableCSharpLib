@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PortableCSharpLib.Interace
+namespace PortableCSharpLib.Interface
 {
     public interface IFactory<T>
     {

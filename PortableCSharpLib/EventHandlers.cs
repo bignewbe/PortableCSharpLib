@@ -1,4 +1,4 @@
-﻿using PortableCSharpLib.Interace;
+﻿using PortableCSharpLib.Interface;
 using PortableCSharpLib.TechnicalAnalysis;
 using System;
 using System.Collections.Generic;
