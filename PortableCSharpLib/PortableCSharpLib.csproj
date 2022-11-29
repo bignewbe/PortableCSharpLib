@@ -1,6 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<!--<TargetFramework>netstandard2.0</TargetFramework>-->
 	</PropertyGroup>
   <ItemGroup>
     <Compile Remove="back\**" />
@@ -20,5 +23,8 @@
 	  <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Log\" />
   </ItemGroup>
 </Project>

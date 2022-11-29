@@ -14,7 +14,7 @@ namespace PortableCSharpLib.Model
     {
         int _maxNumBarsInFile = 1000000;
 
-        public string Exchange { get; private set; } 
+        public string Exchange { get; private set; }
         public string DataFolder { get; private set; }
 
         private ICache<QuoteBasicBase> _cache = new Cache<QuoteBasicBase>(50);
@@ -28,7 +28,7 @@ namespace PortableCSharpLib.Model
 
             if (!this.IsDirectoryWritable(folder))
                 throw new Exception($"{folder} not writable");
-            
+
             this.DataFolder = folder;
 
             //_download = download;
@@ -76,7 +76,7 @@ namespace PortableCSharpLib.Model
         }
 
         //file naming convention: exchange_symbol_interval_index.txt
-        public async Task<bool> Update(IQuoteBasicDownloader download, string symbol, int interval, int timeout = 50000)
+        public async Task<bool> Update(IQuoteBasicDownloader download, string symbol, int interval, int numBarsToRemoveGap = -1, int timeout = 50000)
         {
             //lock (this)
             {
@@ -87,6 +87,17 @@ namespace PortableCSharpLib.Model
                     var readtream = new FileStream(files.Last(), FileMode.Open);
                     var q1 = QuoteBasicBase.InitByStream(readtream);
                     readtream.Close();
+                    if (numBarsToRemoveGap > 0)
+                    {
+                        for (int i = Math.Max(0, q1.Count - numBarsToRemoveGap); i < q1.Count - 1; i++)
+                        {
+                            if (q1.Time[i + 1] - q1.Time[i] > q1.Interval)
+                            {
+                                q1.Clear(i + 1, q1.Count - 1);
+                                break;
+                            }
+                        }
+                    }
 
                     //if time difference is too small => skip download
                     var utcNow = DateTime.UtcNow.GetUnixTimeFromUTC();
@@ -143,7 +154,7 @@ namespace PortableCSharpLib.Model
                 readtream.Close();
                 return q1;
             }
-            catch(FileFormatNotSupportedException ex)
+            catch (FileFormatNotSupportedException ex)
             {
                 Console.WriteLine("remove last line from file");
                 var lines = File.ReadAllLines(filename);
@@ -199,7 +210,7 @@ namespace PortableCSharpLib.Model
         }
 
         //file naming convention: exchange_symbol_interval_index.txt
-        public bool Save(IQuoteBasicBase quote, int numBarsToRemoveGap=-1)
+        public bool Save(IQuoteBasicBase quote, int numBarsToRemoveGap = -1)
         {
             lock (this)
             {
@@ -241,7 +252,7 @@ namespace PortableCSharpLib.Model
                     }
                     else
                     {
-                        var last = files.Last().Split('_').Last();                       
+                        var last = files.Last().Split('_').Last();
                         var index = int.Parse(last.Split('.')[0]);
                         var fn = this.GetQuoteFileName(quote.Symbol, quote.Interval, index + 1);
 
@@ -273,6 +284,169 @@ namespace PortableCSharpLib.Model
                     OnQuoteSaved?.Invoke(this, this.Exchange, fn);
                 }
 
+                return true;
+            }
+        }
+    }
+
+    public class QuoteBasicFileStore2: IQuoteBasicFileStore
+    {
+        public string Exchange { get; private set; }
+        public string DataFolder { get; private set; }
+
+        public event EventHandlers.QuoteSavedEventHandler OnQuoteSaved;
+
+        public QuoteBasicFileStore2(string exchange, string folder)
+        {
+            if (!Directory.Exists(folder))
+                throw new DirectoryNotFoundException(folder);
+
+            if (!this.IsDirectoryWritable(folder))
+                throw new Exception($"{folder} not writable");
+
+            this.DataFolder = folder;
+            this.Exchange = exchange;
+        }
+
+        bool IsDirectoryWritable(string dirPath, bool throwIfFails = false)
+        {
+            try
+            {
+                using (FileStream fs = File.Create(Path.Combine(dirPath, Path.GetRandomFileName()), 1, FileOptions.DeleteOnClose))
+                {
+                }
+                return true;
+            }
+            catch
+            {
+                if (throwIfFails)
+                    throw;
+                else
+                    return false;
+            }
+        }
+
+        private string GetQuoteFileName(string symbol, int interval) =>
+            Path.Combine(this.DataFolder, $"{Exchange}_{symbol}_{interval}.txt");
+
+        public bool Update(Func<string, int, IQuoteBasicBase> funcDownload, string symbol, int interval, int numBarsToRemoveGap=-1)
+        {
+            var fn = this.GetQuoteFileName(symbol, interval);
+            if (File.Exists(fn))
+            {
+                var readtream = new FileStream(fn, FileMode.Open);
+                var q1 = QuoteBasicBase.InitByStream(readtream);
+                readtream.Close();
+                if (numBarsToRemoveGap > 0)
+                {
+                    for (int i = Math.Max(0, q1.Count - numBarsToRemoveGap); i < q1.Count - 1; i++)
+                    {
+                        if (q1.Time[i + 1] - q1.Time[i] > q1.Interval)
+                        {
+                            q1.Clear(i + 1, q1.Count - 1);
+                            break;
+                        }
+                    }
+                }
+
+                //if time difference is too small => skip download
+                var utcNow = DateTime.UtcNow.GetUnixTimeFromUTC();
+                if (utcNow - q1.LastTime <= interval)
+                    return false;
+
+                var q = funcDownload(symbol, interval);
+                if (q == null || q.Count == 0)
+                    return false;
+
+                q1.Append(q, false);
+                var writestream = new FileStream(fn, FileMode.Truncate);
+                q1.AppendStream(writestream);
+                writestream.Close();
+                OnQuoteSaved?.Invoke(this, this.Exchange, fn);
+
+                return true;
+            }
+            else
+            {
+                var q = funcDownload(symbol, interval);
+                if (q == null || q.Count == 0) return false;
+                var writestream = new FileStream(fn, FileMode.OpenOrCreate);
+                q.AppendStream(writestream);
+                writestream.Close();
+                OnQuoteSaved?.Invoke(this, this.Exchange, fn);
+
+                return true;
+            }
+        }
+
+        public static QuoteBasicBase LoadQuote(string filename)
+        {
+            try
+            {
+                Console.WriteLine($"QuoteBasicFileStore: load... {filename}");
+                var readtream = new FileStream(filename, FileMode.Open);
+                var q1 = QuoteBasicBase.InitByStream(readtream);
+                readtream.Close();
+                return q1;
+            }
+            catch (FileFormatNotSupportedException ex)
+            {
+                Console.WriteLine("remove last line from file");
+                var lines = File.ReadAllLines(filename);
+                lines = lines.Take(lines.Length - 1).ToArray();
+                File.WriteAllLines(filename, lines);
+                throw ex;
+            }
+        }
+
+        public QuoteBasicBase Load(string symbol, int interval, long? startTime, int maxCount = 500)
+        {
+            lock (this)
+            {
+                var fn = this.GetQuoteFileName(symbol, interval);
+
+                if (!File.Exists(fn)) return null;                    
+                var quote = QuoteBasicFileStore2.LoadQuote(fn);
+                var ind1 = startTime.HasValue ? quote.FindIndexForGivenTime(startTime.Value) : 0;
+                var ind2 = quote.Count - maxCount;
+                var index = Math.Max(0, Math.Max(ind1, ind2));
+                if (index != 0)
+                    return quote.Extract(index, quote.Count - 1) as QuoteBasicBase;
+                else
+                    return quote;
+            }
+        }
+
+        public bool Save(IQuoteBasicBase quote, int numBarsToRemoveGap = -1)
+        {
+            lock (this)
+            {
+                if (quote == null || quote.Count == 0) return false;
+                var fn = this.GetQuoteFileName(quote.Symbol, quote.Interval);
+                if (File.Exists(fn))
+                {
+                    var q1 = QuoteBasicExension.LoadFile(fn);
+                    if (numBarsToRemoveGap > 0)
+                    {
+                        for (int i = Math.Max(0, q1.Count - numBarsToRemoveGap); i < q1.Count - 1; i++)
+                        {
+                            if (q1.Time[i + 1] - q1.Time[i] > q1.Interval)
+                            {
+                                q1.Clear(i + 1, q1.Count - 1);
+                                break;
+                            }
+                        }
+                    }
+                    if (quote.LastTime <= q1.LastTime) return false;
+                    q1.Append(quote);
+                    q1.SaveToFile(fn);
+                    OnQuoteSaved?.Invoke(this, this.Exchange, fn);
+                }
+                else
+                {
+                    quote.SaveToFile(fn);
+                    OnQuoteSaved?.Invoke(this, this.Exchange, fn);
+                }
                 return true;
             }
         }

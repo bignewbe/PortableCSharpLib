@@ -1,12 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PortableCSharpLib;
-using System;
-using System.IO;
-using System.Threading.Tasks;
 using PortableCSharpLib.TechnicalAnalysis;
 using PortableCSharpLib.Interface;
-using Moq;
 using PortableCSharpLib.Model;
+using Moq;
 
 namespace UnitTest
 {

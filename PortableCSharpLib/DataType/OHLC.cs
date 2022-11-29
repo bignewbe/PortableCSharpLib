@@ -6,6 +6,8 @@ namespace PortableCSharpLib.DataType
 {
     public class OHLC : IIdEqualCopy<OHLC>
     {
+        public event EventHandlers.ItemWithIdChangedEventHandler<OHLC> OnOHLCUpdated;
+
         [JsonIgnore]
         public string Id { get { return this.Symbol; } }
         [JsonProperty(PropertyName = "S")]
@@ -50,6 +52,31 @@ namespace PortableCSharpLib.DataType
                   this.Low == other.Low &
                   this.Close == other.Close &
                   this.Volume == other.Volume;
+        }
+
+        public void UpdateTicker(long time, double last)
+        {
+            if (time / this.Interval != this.Time / this.Interval)
+            {
+                Time = time / this.Interval * this.Interval;
+                Open = this.Time > 0? Close : last;
+                Close = last;
+                High = last;
+                Low = last;
+                OnOHLCUpdated?.Invoke(this, this.Symbol, this);
+            }
+            else
+            {
+                if (Close != last)
+                {
+                    Close = last;
+                    if (Close > High)
+                        High = Close;
+                    if (Close < Low)
+                        Low = Close;
+                    OnOHLCUpdated.Invoke(this, this.Symbol, this);
+                }
+            }
         }
     }
 }

@@ -477,28 +477,28 @@ namespace PortableCSharpLib
             }
         }
 
-        public static T Clone<T>(this T source)
-        {
-            if (!typeof(T).IsSerializable)
-            {
-                throw new ArgumentException("The type must be serializable.", "source");
-            }
+        //public static T Clone<T>(this T source)
+        //{
+        //    if (!typeof(T).IsSerializable)
+        //    {
+        //        throw new ArgumentException("The type must be serializable.", "source");
+        //    }
 
-            // Don't serialize a null object, simply return the default for that object
-            if (Object.ReferenceEquals(source, null))
-            {
-                return default(T);
-            }
+        //    // Don't serialize a null object, simply return the default for that object
+        //    if (Object.ReferenceEquals(source, null))
+        //    {
+        //        return default(T);
+        //    }
 
-            IFormatter formatter = new BinaryFormatter();
-            Stream stream = new MemoryStream();
-            using (stream)
-            {
-                formatter.Serialize(stream, source);
-                stream.Seek(0, SeekOrigin.Begin);
-                return (T)formatter.Deserialize(stream);
-            }
-        }
+        //    IFormatter formatter = new BinaryFormatter();
+        //    Stream stream = new MemoryStream();
+        //    using (stream)
+        //    {
+        //        formatter.Serialize(stream, source);
+        //        stream.Seek(0, SeekOrigin.Begin);
+        //        return (T)formatter.Deserialize(stream);
+        //    }
+        //}
         public static SerializableStringDictionary ToSerializableStringDictionary(this StringCollection sc)
         {
             if (sc == null || sc.Count % 2 != 0)
