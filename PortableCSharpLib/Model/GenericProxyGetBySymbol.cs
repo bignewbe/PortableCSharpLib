@@ -163,7 +163,7 @@ namespace PortableCSharpLib.Model
                         this.SetDataChanged(true);
                     }
 
-                    if (Items[t.Id].Equals(t))
+                    if (!Items[t.Id].Equals(t))
                     {
                         Items[t.Id].Copy(t);
                         OnItemUpdated?.Invoke(this, Items[t.Id]);
