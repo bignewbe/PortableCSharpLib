@@ -68,7 +68,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
         /// <param name="subInterval"></param>
         /// <param name="isFillGap">indicate whether to fill missing data</param>
         /// <returns>成功添加的数量，包括fillGap的数量</returns>
-        int Append(IQuoteBasicBase q, bool isTriggerDataUpdated = false);
+        int Append(IQuoteBasicBase q, bool isTriggerDataUpdated = false, bool isAddWithGap=true);
 
         /// <summary>
         /// Add single data point and raise event if indicated.

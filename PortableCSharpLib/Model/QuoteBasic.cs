@@ -866,7 +866,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
             return this.Append(q, -1, false, isTriggerDataUpdated);
         }
 
-        public int Append(IQuoteBasicBase q, bool isTriggerDataUpdated = false)
+        public int Append(IQuoteBasicBase q, bool isTriggerDataUpdated = false, bool isAddWithGap = true)
         {
             return this.Append(q, -1, false, isTriggerDataUpdated);
         }

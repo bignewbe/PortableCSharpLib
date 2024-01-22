@@ -177,7 +177,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
         }
 
         //[0,1,2,4,5)
-        public int Append(IQuoteBasicBase q, bool isTriggerDataUpdated = false)
+        public int Append(IQuoteBasicBase q, bool isTriggerDataUpdated = false, bool isAddWithGap = true)
         {
             //no data to add
             if (q == null || q.Count <= 0 || q.LastTime < this.LastTime || this.Symbol != q.Symbol || this.Interval < q.Interval || this.Interval % q.Interval != 0) return 0;
@@ -191,6 +191,10 @@ namespace PortableCSharpLib.TechnicalAnalysis
                 indexStartSearch = i;
             }
             if (indexStartSearch == -1) return 0;
+
+            //there is gap between this and q
+            if (!isAddWithGap && q.Time[indexStartSearch] / this.Interval * this.Interval > this.LastTime + this.Interval)
+                return 0;
 
             /////////////////////////////////////////////////////////////////////////////////
             var numBeforeAdd = this.Count;
