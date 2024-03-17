@@ -122,7 +122,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
             }
         }
 
-        public int AddUpdate(long t, double o, double h, double l, double c, double v, bool isTriggerDataAdded = false)
+        public int AddUpdate(long t, double o, double h, double l, double c, double v, bool isTriggerDataAdded = false, bool isAddWithGap = true)
         {
             if (this.Count == 0 || t > this.LastTime)
             {
@@ -148,7 +148,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
             return 0;
         }
 
-        public int AddUpdate(string symbol, int interval, long t, double o, double h, double l, double c, double v, bool isTriggerDataAdded = false)
+        public int AddUpdate(string symbol, int interval, long t, double o, double h, double l, double c, double v, bool isTriggerDataAdded = false, bool isAddWithGap = true)
         {
             throw new NotImplementedException();
         }

@@ -119,9 +119,11 @@ namespace PortableCSharpLib.TechnicalAnalysis
         /// <param name="v"></param>
         /// <param name="isTriggerDataAdded"></param>
         /// <returns></returns>
-        public int AddUpdate(long t, double o, double h, double l, double c, double v, bool isTriggerDataAdded = false)
+        public int AddUpdate(long t, double o, double h, double l, double c, double v, bool isTriggerDataAdded = false, bool isAddedWithGap=true)
         {
-            if (this.Count == 0 || t > this.LastTime)
+            if ((this.Count == 0) || 
+                (isAddedWithGap && t > this.LastTime) || 
+                (!isAddedWithGap && t == this.LastTime + this.Interval))  //no gap allowed
             {
                 Open.Add(o);
                 High.Add(h);
@@ -145,12 +147,15 @@ namespace PortableCSharpLib.TechnicalAnalysis
             return -1;
         }
 
-        public int AddUpdate(string symbol, int interval, long t, double o, double h, double l, double c, double v, bool isTriggerDataAdded = false)
+        public int AddUpdate(string symbol, int interval, long t, double o, double h, double l, double c, double v, bool isTriggerDataAdded = false, bool isAddedWithGap=true)
         {
-            if (this.Symbol != symbol || this.Interval < interval || this.Interval%interval != 0) return 0;
+            if (this.Symbol != symbol || this.Interval < interval || this.Interval%interval != 0) 
+                return -1;
 
             var time = t / this.Interval * this.Interval;
-            if (this.Count == 0 || time > this.LastTime)
+            if ((this.Count == 0) || 
+                (isAddedWithGap && time > this.LastTime) ||
+                (!isAddedWithGap && time == this.LastTime + this.Interval))  //no gap and is valid
             {
                 Open.Add(o);
                 High.Add(h);
@@ -180,7 +185,8 @@ namespace PortableCSharpLib.TechnicalAnalysis
         public int Append(IQuoteBasicBase q, bool isTriggerDataUpdated = false, bool isAddWithGap = true)
         {
             //no data to add
-            if (q == null || q.Count <= 0 || q.LastTime < this.LastTime || this.Symbol != q.Symbol || this.Interval < q.Interval || this.Interval % q.Interval != 0) return 0;
+            if (q == null || q.Count <= 0 || q.LastTime < this.LastTime || this.Symbol != q.Symbol || this.Interval < q.Interval || this.Interval % q.Interval != 0) 
+                return -1;
 
             //search backward for quotes to be added. the found time should be >= this.LastTime
             int indexStartSearch = -1;
@@ -190,11 +196,11 @@ namespace PortableCSharpLib.TechnicalAnalysis
                     break;
                 indexStartSearch = i;
             }
-            if (indexStartSearch == -1) return 0;
+            if (indexStartSearch == -1) return -1;
 
             //there is gap between this and q
             if (!isAddWithGap && q.Time[indexStartSearch] / this.Interval * this.Interval > this.LastTime + this.Interval)
-                return 0;
+                return -1;
 
             /////////////////////////////////////////////////////////////////////////////////
             var numBeforeAdd = this.Count;
@@ -209,7 +215,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
                 if (q.Time[i] >= endTime)
                 {
                     eindex = i - 1;        // interval区间的结束索引
-                    var num = this.AddItemByQuoteBasic(q, sindex, eindex);
+                    var num = this.AddItemByQuoteBasic(q, sindex, eindex, isAddWithGap);
                     if (num >= 0)
                     {
                         numAddedElement += num;
@@ -223,7 +229,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
             //add last element
             if (sindex > eindex)
             {
-                var num = this.AddItemByQuoteBasic(q, sindex, q.Count - 1);
+                var num = this.AddItemByQuoteBasic(q, sindex, q.Count - 1, isAddWithGap);
                 if (num >= 0)
                 {
                     numAddedElement += num;
@@ -237,63 +243,8 @@ namespace PortableCSharpLib.TechnicalAnalysis
             return isDataChanged? numAddedElement : -1;  //-1 means nothing changed, 0 means updated, >=1 means added
         }
 
-        public int Append(IQuoteCapture q, bool isTriggerDataUpdated = false)
-        {
-            if (q == null || q.Count <= 0 || q.LastTime <= this.LastTime || this.Symbol != q.Symbol)
-                return 0;
 
-            //search backward for the quotes. the found time should be >= lastTime
-            int indexStartSearch = -1;
-            for (int i = q.Count - 1; i >= 0; i--)
-            {
-                if (q.Time[i] < this.LastTime)               //for basic quote we include price at previous interval for calculation
-                    break;
-
-                indexStartSearch = i;
-            }
-            if (indexStartSearch == -1) return 0;
-
-            ////////////////////////////////////////////////////////////////////////////
-            var isDataChanged = false;
-            var numAddedElement = 0;
-
-            int sindex = indexStartSearch; // interval区间的开始索引
-            var eindex = -1;
-            var endTime = q.Time[sindex] / this.Interval * this.Interval + this.Interval;      //use the first time as the data bar time
-            for (int i = indexStartSearch; i <= q.Count - 1; i++)
-            {
-                if (q.Time[i] >= endTime)
-                {
-                    eindex = i - 1;        // interval区间的结束索引
-                    var num = this.AddItemByQuoteCapture(q, sindex, eindex);
-                    if (num >= 0)
-                    {
-                        numAddedElement += num;
-                        isDataChanged = true;
-                    }
-                    sindex = i;
-                    endTime = q.Time[sindex] / this.Interval * this.Interval + this.Interval;
-                }
-            }
-
-            //add last element
-            if (sindex > eindex)
-            {
-                var num = this.AddItemByQuoteCapture(q, sindex, q.Count - 1);
-                if (num >= 0)
-                {
-                    numAddedElement += num;
-                    isDataChanged = true;
-                }
-            }
-
-            if (isTriggerDataUpdated && isDataChanged)
-                OnDataAddedOrUpdated?.Invoke(this, this, numAddedElement);
-
-            return isDataChanged ? numAddedElement : -1;  //-1 means nothing changed, 0 means updated, >=1 means added
-        }
-
-        private int AddItemByQuoteBasic(IQuoteBasicBase q, int sindex, int eindex)
+        private int AddItemByQuoteBasic(IQuoteBasicBase q, int sindex, int eindex, bool isAddedWithGap)
         {
             var len = eindex - sindex + 1;
             var open = q.Open[sindex];
@@ -305,22 +256,78 @@ namespace PortableCSharpLib.TechnicalAnalysis
 
             //repeat quote to fill gap
             //FillGap(isFillGap, endTime, ref numAddedElement);
-            return this.AddUpdate(time, open, high, low, close, volume);  //add the data
+            return this.AddUpdate(time, open, high, low, close, volume, isAddedWithGap: isAddedWithGap);  //add the data
         }
 
-        private int AddItemByQuoteCapture(IQuoteCapture q, int sindex, int eindex)
-        {
-            var len = eindex - sindex + 1;
-            var price = q.Price.GetRange(sindex, len);
-            var volumnList = q.Volume.GetRange(sindex, len);
-            var time = q.Time[sindex] / this.Interval * this.Interval;
-            var open = this.Count > 0 ? this.Close.Last() : q.Price[sindex];
-            var close = q.Price[eindex];
-            var high = price.Max();
-            var low = price.Min();
-            var volumn = volumnList.Sum();
-            return this.AddUpdate(time, open, high, low, close, volumn);  //add the data
-        }
+        //public int Append(IQuoteCapture q, bool isTriggerDataUpdated = false)
+        //{
+        //    if (q == null || q.Count <= 0 || q.LastTime <= this.LastTime || this.Symbol != q.Symbol)
+        //        return 0;
+
+        //    //search backward for the quotes. the found time should be >= lastTime
+        //    int indexStartSearch = -1;
+        //    for (int i = q.Count - 1; i >= 0; i--)
+        //    {
+        //        if (q.Time[i] < this.LastTime)               //for basic quote we include price at previous interval for calculation
+        //            break;
+
+        //        indexStartSearch = i;
+        //    }
+        //    if (indexStartSearch == -1) return 0;
+
+        //    ////////////////////////////////////////////////////////////////////////////
+        //    var isDataChanged = false;
+        //    var numAddedElement = 0;
+
+        //    int sindex = indexStartSearch; // interval区间的开始索引
+        //    var eindex = -1;
+        //    var endTime = q.Time[sindex] / this.Interval * this.Interval + this.Interval;      //use the first time as the data bar time
+        //    for (int i = indexStartSearch; i <= q.Count - 1; i++)
+        //    {
+        //        if (q.Time[i] >= endTime)
+        //        {
+        //            eindex = i - 1;        // interval区间的结束索引
+        //            var num = this.AddItemByQuoteCapture(q, sindex, eindex);
+        //            if (num >= 0)
+        //            {
+        //                numAddedElement += num;
+        //                isDataChanged = true;
+        //            }
+        //            sindex = i;
+        //            endTime = q.Time[sindex] / this.Interval * this.Interval + this.Interval;
+        //        }
+        //    }
+
+        //    //add last element
+        //    if (sindex > eindex)
+        //    {
+        //        var num = this.AddItemByQuoteCapture(q, sindex, q.Count - 1);
+        //        if (num >= 0)
+        //        {
+        //            numAddedElement += num;
+        //            isDataChanged = true;
+        //        }
+        //    }
+
+        //    if (isTriggerDataUpdated && isDataChanged)
+        //        OnDataAddedOrUpdated?.Invoke(this, this, numAddedElement);
+
+        //    return isDataChanged ? numAddedElement : -1;  //-1 means nothing changed, 0 means updated, >=1 means added
+        //}
+
+        //private int AddItemByQuoteCapture(IQuoteCapture q, int sindex, int eindex)
+        //{
+        //    var len = eindex - sindex + 1;
+        //    var price = q.Price.GetRange(sindex, len);
+        //    var volumnList = q.Volume.GetRange(sindex, len);
+        //    var time = q.Time[sindex] / this.Interval * this.Interval;
+        //    var open = this.Count > 0 ? this.Close.Last() : q.Price[sindex];
+        //    var close = q.Price[eindex];
+        //    var high = price.Max();
+        //    var low = price.Min();
+        //    var volumn = volumnList.Sum();
+        //    return this.AddUpdate(time, open, high, low, close, volumn);  //add the data
+        //}
 
         //private void FillGap(bool isFillGap, long endTime, ref int numAddedElement)
         //{

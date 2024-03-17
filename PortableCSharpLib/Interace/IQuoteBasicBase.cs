@@ -55,7 +55,7 @@ namespace PortableCSharpLib.TechnicalAnalysis
         /// <param name="q">内部数据应该以非递减排序</param>
         /// <param name="isFillGap">indicate whether to fill missing data</param>
         /// <returns>成功添加的数量，包含fillGap的数量</returns>
-        int Append(IQuoteCapture q, bool isTriggerDataUpdated = false);
+        //int Append(IQuoteCapture q, bool isTriggerDataUpdated = false);
 
         /// <summary>
         /// Append quote to the end. If subInterval not specified, all elements added must be multiple of the existing interval.
@@ -83,9 +83,9 @@ namespace PortableCSharpLib.TechnicalAnalysis
         /// <param name="c"></param>
         /// <param name="v"></param>
         /// <param name="isTriggerDataAdded">是否触发事件</param>
-        int AddUpdate(long t, double o, double h, double l, double c, double v, bool isTriggerDataAdded = false);
+        int AddUpdate(long t, double o, double h, double l, double c, double v, bool isTriggerDataAdded = false, bool isAddWithGap = true);
 
-        int AddUpdate(string symbol, int interval, long t, double o, double h, double l, double c, double v, bool isTriggerDataAdded = false);
+        int AddUpdate(string symbol, int interval, long t, double o, double h, double l, double c, double v, bool isTriggerDataAdded = false, bool isAddWithGap = true);
         /// <summary>
         /// event raised when Add is called with isTriggerDataAdded == true
         /// </summary>
